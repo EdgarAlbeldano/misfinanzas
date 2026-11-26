@@ -129,6 +129,7 @@
     @media (max-width: 640px) {
       input, select, textarea { font-size: 16px !important; }
       #tx-amt { font-size: 30px !important; }
+      #f-limit-sel { font-size: 12px !important; }
     }
 
     /* Scrollbars limpios en escritorio */
@@ -219,9 +220,6 @@
           </span>
           <span class="text-[var(--primary)]">Sync</span>
         </button>
-        <button data-reset-demo type="button" class="w-full px-3 py-2 rounded-xl text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--content)] text-left cursor-pointer transition-colors">
-          Restaurar datos demo
-        </button>
       </div>
     </aside>
 
@@ -263,9 +261,6 @@
                 </button>
                 <button data-open-sync type="button" class="mob-menu-act w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium hover:bg-[var(--content)] active:bg-[var(--content)] flex items-center gap-2.5 cursor-pointer">
                   <span>☁️</span><span>Configurar Google Sheets</span>
-                </button>
-                <button data-reset-demo type="button" class="mob-menu-act w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium text-[var(--muted-foreground)] hover:bg-[var(--content)] active:bg-[var(--content)] flex items-center gap-2.5 cursor-pointer">
-                  <span>↺</span><span>Restaurar datos demo</span>
                 </button>
                 <div class="border-t border-[var(--border)] pt-2 mt-1 px-2 pb-1 flex items-center justify-between gap-2">
                   <span class="text-xs font-medium text-[var(--muted-foreground)]">Tema</span>
@@ -364,7 +359,7 @@
             </div>
           </div>
 
-          <!-- Bottom Row: Actividad reciente (3 en móvil, 5 en escritorio) -->
+          <!-- Bottom Row: Actividad reciente (únicamente las últimas 5) -->
           <div class="bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-4 sm:p-5">
             <div class="flex items-center justify-between gap-2 mb-1.5">
               <h2 class="text-sm font-semibold">Actividad reciente</h2>
@@ -444,19 +439,39 @@
               <div id="f-dynamic-chips" class="space-y-2.5"></div>
             </div>
 
-            <!-- Live Smart Totals Bar -->
-            <div id="f-stats" class="pt-2.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2 text-xs"></div>
+            <!-- Live Smart Totals Bar + Selector de cantidad -->
+            <div class="pt-2.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div id="f-stats" class="flex flex-wrap items-center gap-x-3 gap-y-1"></div>
+              <div class="flex items-center gap-1.5 flex-none">
+                <label for="f-limit-sel" class="text-[var(--muted-foreground)]">Mostrar:</label>
+                <select id="f-limit-sel" class="h-7 px-2 rounded-lg bg-[var(--content)] border border-[var(--border)] text-xs font-semibold text-[var(--foreground)] cursor-pointer focus:outline-none focus:border-[var(--primary)]">
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                  <option value="50">50</option>
+                  <option value="all">Todos</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <!-- Unified Results -->
           <div class="bg-[var(--card)] border border-[var(--card-border)] rounded-2xl px-4 sm:px-5 py-1">
             <div id="f-results" class="divide-y divide-[var(--border)]"></div>
+            <div id="f-more-wrap" class="hidden py-3.5 border-t border-[var(--border)] flex items-center justify-center gap-2.5">
+              <button id="f-more-btn" type="button" class="tap-scale h-10 px-4 rounded-xl bg-[var(--secondary)] text-[var(--primary)] text-xs font-semibold hover:opacity-90 cursor-pointer"></button>
+              <button id="f-all-btn" type="button" class="tap-scale h-10 px-3.5 rounded-xl bg-[var(--content)] border border-[var(--border)] text-xs font-semibold text-[var(--foreground)] hover:border-[var(--primary)] cursor-pointer">Mostrar todos</button>
+            </div>
           </div>
         </section>
 
       </main>
     </div>
   </div>
+
+  <!-- BOTÓN FLOTANTE VOLVER ARRIBA EN MOVIMIENTOS -->
+  <button id="scroll-top-btn" type="button" aria-label="Volver arriba" title="Volver arriba" class="tap-scale fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:right-7 lg:bottom-7 z-30 w-11 h-11 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-xl grid place-items-center cursor-pointer transition-all duration-200 opacity-0 translate-y-4 pointer-events-none">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+  </button>
 
   <!-- MOBILE BOTTOM BAR -->
   <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] grid grid-cols-3 gap-1" aria-label="Navegación móvil">
@@ -529,7 +544,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CORTE DE MES (Adaptado a tarjetas en móvil y tabla completa en escritorio) -->
+  <!-- MODAL: CORTE DE MES -->
   <div id="cut-modal" class="modal-backdrop hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="animate-sheet overscroll-contain bg-[var(--card)] border border-[var(--border)] w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
       <div class="w-10 h-1 rounded-full bg-[var(--border)] mx-auto sm:hidden"></div>
@@ -646,65 +661,35 @@
         sysDarkMq.addEventListener('change', () => { if (themeMode === 'auto') applyTheme('auto'); });
       }
 
-      function createDemoState() {
-        const td = today(), ym = td.slice(0, 7), pm = addMonth(ym, -1), p2 = addMonth(ym, -2);
+      function createInitialState() {
+        let prevCfg = { url: '', token: '' };
+        try {
+          const old = JSON.parse(localStorage.getItem('mf_genui_state_v3') || 'null');
+          if (old && old.cfg && (old.cfg.url || old.cfg.token)) prevCfg = old.cfg;
+        } catch (e) {}
         return {
-          banks: ['Nu', 'BBVA Débito', 'Mercado Pago'],
-          cards: { 'BBVA Azul': { day: 18, limit: 28000 }, 'Nu Crédito': { day: 5, limit: 18000 } },
-          rates: { 'Nu': { r1: 12.0, cap: 25000, r2: 9.0 }, 'Mercado Pago': { r1: 10.5, cap: 23000, r2: 0 } },
-          subs: [
-            { id: 901, name: 'Netflix', amt: 249, day: 12, card: 'Nu Crédito', pago: 'Crédito', start: p2 + '-01' },
-            { id: 902, name: 'Spotify', amt: 129, day: 28, card: 'BBVA Azul', pago: 'Crédito', start: p2 + '-01' },
-            { id: 903, name: 'iCloud+', amt: 49, day: 3, card: 'Nu', pago: 'Débito', start: p2 + '-01' }
-          ],
+          banks: [],
+          cards: {},
+          rates: {},
+          subs: [],
           skips: [],
-          gdef: [
-            { id: 801, type: 'meta', cat: 'Viaje a Japón', note: '✈️', date: p2 + '-05', amt: 35000 },
-            { id: 802, type: 'meta', cat: 'Fondo de Emergencia', note: '🚨', date: p2 + '-01', amt: 40000 },
-            { id: 803, type: 'meta', cat: 'Setup & Laptop', note: '💻', date: pm + '-10', amt: 22000 }
-          ],
-          goal: [
-            { id: 701, type: 'deposito', cat: 'Viaje a Japón', note: 'Ahorro quincenal', date: pm + '-15', amt: 6500 },
-            { id: 702, type: 'deposito', cat: 'Viaje a Japón', note: 'Bono proyecto', date: ym + '-05', amt: 8200 },
-            { id: 703, type: 'deposito', cat: 'Fondo de Emergencia', note: 'Base inicial', date: p2 + '-02', amt: 25000 },
-            { id: 704, type: 'deposito', cat: 'Fondo de Emergencia', note: 'Aporte mensual', date: ym + '-02', amt: 4500 },
-            { id: 705, type: 'deposito', cat: 'Setup & Laptop', note: 'Venta monitor', date: pm + '-18', amt: 5200 }
-          ],
-          sav: [
-            { id: 601, type: 'deposito', cat: 'Nu', note: 'Cajita rendimiento', date: p2 + '-03', amt: 22000 },
-            { id: 602, type: 'deposito', cat: 'Mercado Pago', note: 'Reserva liquidez', date: pm + '-04', amt: 14500 },
-            { id: 603, type: 'deposito', cat: 'BBVA Débito', note: 'Nómina respaldo', date: ym + '-01', amt: 9500 },
-            { id: 604, type: 'retiro', cat: 'BBVA Débito', note: 'Pago tarjeta', date: ym + '-10', amt: 2500 }
-          ],
-          rows: [
-            { id: 101, type: 'ingreso', cat: 'Sueldo', note: 'Nómina Q1', date: ym + '-01', amt: 18500, acct: 'BBVA Débito' },
-            { id: 102, type: 'ingreso', cat: 'Ventas', note: 'Consultoría', date: ym + '-09', amt: 6400, acct: 'Nu' },
-            { id: 103, type: 'gasto', cat: 'Hogar', note: 'Renta depa', date: ym + '-02', amt: 8200, acct: 'BBVA Débito', pago: 'Débito' },
-            { id: 104, type: 'gasto', cat: 'Comida', note: 'Supermercado', date: ym + '-06', amt: 2150, acct: 'BBVA Azul', pago: 'Crédito' },
-            { id: 105, type: 'gasto', cat: 'Transporte', note: 'Gasolina', date: ym + '-08', amt: 1380, acct: 'Nu Crédito', pago: 'Crédito' },
-            { id: 106, type: 'gasto', cat: 'Ocio', note: 'Cena y cine', date: ym + '-11', amt: 940, acct: 'Nu Crédito', pago: 'Crédito' },
-            { id: 107, type: 'gasto', cat: 'Salud', note: 'Farmacia', date: ym + '-13', amt: 1120, acct: 'Efectivo', pago: 'Efectivo' },
-            { id: 108, type: 'gasto', cat: 'Compras', note: 'Ropa deportiva', date: ym + '-15', amt: 2450, acct: 'BBVA Azul', pago: 'Crédito' },
-            { id: 109, type: 'gasto', cat: 'Suscripciones', note: 'Netflix', date: chargeOn(ym, 12), amt: 249, acct: 'Nu Crédito', pago: 'Crédito' },
-            { id: 110, type: 'gasto', cat: 'Suscripciones', note: 'iCloud+', date: chargeOn(ym, 3), amt: 49, acct: 'Nu', pago: 'Débito' },
-            { id: 111, type: 'ingreso', cat: 'Sueldo', note: 'Nómina mes anterior', date: pm + '-01', amt: 37000, acct: 'BBVA Débito' },
-            { id: 113, type: 'gasto', cat: 'Hogar', note: 'Renta y luz', date: pm + '-03', amt: 8950, acct: 'BBVA Débito', pago: 'Débito' },
-            { id: 114, type: 'gasto', cat: 'Comida', note: 'Despensa', date: pm + '-14', amt: 4320, acct: 'Nu Crédito', pago: 'Crédito' },
-            { id: 115, type: 'gasto', cat: 'Compras', note: 'Audífonos', date: pm + '-21', amt: 3200, acct: 'BBVA Azul', pago: 'Crédito' },
-            { id: 116, type: 'ingreso', cat: 'Sueldo', note: 'Nómina Q1+Q2', date: p2 + '-01', amt: 34000, acct: 'BBVA Débito' },
-            { id: 117, type: 'gasto', cat: 'Hogar', note: 'Renta', date: p2 + '-02', amt: 8200, acct: 'BBVA Débito', pago: 'Débito' },
-            { id: 118, type: 'gasto', cat: 'Comida', note: 'Supermercado', date: p2 + '-16', amt: 3800, acct: 'Efectivo', pago: 'Efectivo' }
-          ],
-          cuts: { [pm]: Date.now() - 86400000 * 10 },
-          cfg: { url: '', token: '' }
+          gdef: [],
+          goal: [],
+          sav: [],
+          rows: [],
+          cuts: {},
+          cfg: prevCfg
         };
       }
 
-      const STORE_KEY = 'mf_genui_state_v3';
+      const STORE_KEY = 'mf_genui_state_v4';
       const Q_KEY = 'mf_sync_queue_v1';
       let state = null;
       try { state = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) {}
-      if (!state || !Array.isArray(state.rows)) state = createDemoState();
+      if (!state || !Array.isArray(state.rows)) {
+        state = createInitialState();
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+      }
       if (!Array.isArray(state.skips)) state.skips = [];
       const saveState = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} };
 
@@ -713,6 +698,8 @@
       let currentView = 'balance';
       let chartTab = 'flow';
       let fState = { scope: 'all', q: '', month: '', date: '', cat: 'all', acct: 'all', pago: 'all', open: false };
+      let movStep = 15;
+      let movShown = 15;
       let cutMonth = today().slice(0, 7);
       let undoFn = null;
       let toastTimer = null;
@@ -960,7 +947,7 @@
       document.addEventListener('click', () => { if (mobMenuOpen) setMobMenu(false); });
       document.querySelectorAll('.mob-menu-act').forEach((b) => b.addEventListener('click', () => setMobMenu(false)));
 
-      // ===== Keyboard Shortcuts (Desktop UX: Esc closes modals, Enter submits) =====
+      // ===== Keyboard Shortcuts (Desktop UX) =====
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           if (mobMenuOpen) setMobMenu(false);
@@ -971,6 +958,17 @@
           else if (!$('sync-modal').classList.contains('hidden')) { e.preventDefault(); $('sync-save').click(); }
         }
       });
+
+      // ===== Scroll-to-top Button in Movimientos =====
+      function updateScrollTopBtn() {
+        const show = currentView === 'historial' && window.scrollY > 360;
+        const btn = $('scroll-top-btn');
+        btn.classList.toggle('opacity-0', !show);
+        btn.classList.toggle('translate-y-4', !show);
+        btn.classList.toggle('pointer-events-none', !show);
+      }
+      window.addEventListener('scroll', updateScrollTopBtn, { passive: true });
+      $('scroll-top-btn').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // ===== Navigation & Touch Swipe Between Views =====
       const VIEW_ORDER = ['balance', 'historial', 'ahorros'];
@@ -994,6 +992,7 @@
         $('view-title').textContent = VIEW_META[view].title;
         $('view-subtitle').textContent = VIEW_META[view].sub;
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateScrollTopBtn();
         renderAll();
       }
       document.querySelectorAll('.nav-btn, .mob-tab').forEach((b) => { b.onclick = () => switchView(b.getAttribute('data-view')); });
@@ -1119,7 +1118,11 @@
           svg += '</svg>';
           box.innerHTML = `${svg}<div class="flex items-center justify-center gap-5 pt-2 text-xs text-[var(--muted-foreground)]"><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:var(--success)"></span>Ingresos</span><span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:var(--error)"></span>Gastos</span></div>`;
           box.querySelectorAll('[data-jump-ym]').forEach((el) => {
-            el.onclick = () => { fState = { scope: 'all', q: '', month: el.getAttribute('data-jump-ym'), date: '', cat: 'all', acct: 'all', pago: 'all', open: false }; switchView('historial'); };
+            el.onclick = () => {
+              fState = { scope: 'all', q: '', month: el.getAttribute('data-jump-ym'), date: '', cat: 'all', acct: 'all', pago: 'all', open: false };
+              movShown = movStep;
+              switchView('historial');
+            };
           });
         } else {
           $('chart-title').textContent = 'Gastos por categoría';
@@ -1155,7 +1158,11 @@
             </div>
           `;
           box.querySelectorAll('[data-jump-cat]').forEach((el) => {
-            el.onclick = () => { fState = { scope: 'gasto', q: '', month: curM, date: '', cat: el.getAttribute('data-jump-cat'), acct: 'all', pago: 'all', open: false }; switchView('historial'); };
+            el.onclick = () => {
+              fState = { scope: 'gasto', q: '', month: curM, date: '', cat: el.getAttribute('data-jump-cat'), acct: 'all', pago: 'all', open: false };
+              movShown = movStep;
+              switchView('historial');
+            };
           });
         }
       }
@@ -1268,10 +1275,9 @@
           });
         }
 
-        // Actividad reciente (3 visibles en móvil, 5 en escritorio)
+        // Actividad reciente: únicamente las últimas 5
         const ru = $('recent-unified'); ru.innerHTML = '';
-        const visibleLimit = window.innerWidth >= 1024 ? 5 : 3;
-        const list = getAllUnifiedMovements().slice(0, visibleLimit);
+        const list = getAllUnifiedMovements().slice(0, 5);
         if (!list.length) ru.innerHTML = '<div class="py-6 text-center text-xs text-[var(--muted-foreground)]">Sin actividad aún.</div>';
         else list.forEach((item) => ru.appendChild(buildUnifiedRow(item)));
       }
@@ -1360,6 +1366,7 @@
             card.querySelector('.gs').onclick = () => openTxModal('gret', g.cat);
             card.querySelector('.gm').onclick = () => {
               fState = { scope: 'goal', q: '', month: '', date: '', cat: g.cat, acct: 'all', pago: 'all', open: false };
+              movShown = movStep;
               switchView('historial');
             };
             card.querySelector('.gd').onclick = () => {
@@ -1409,6 +1416,7 @@
           b.onclick = () => {
             fState.scope = sc.id;
             fState.cat = 'all';
+            movShown = movStep;
             renderUnifiedHistory();
           };
           sp.appendChild(b);
@@ -1441,7 +1449,7 @@
             const b = document.createElement('button'); b.type = 'button';
             b.className = `tap-scale px-3 py-1.5 rounded-full text-xs whitespace-nowrap cursor-pointer flex-none ${it.v === cur ? 'bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold' : 'bg-[var(--content)] text-[var(--foreground)] hover:bg-[var(--secondary)]'}`;
             b.textContent = it.l;
-            b.onclick = () => { onPick(it.v); renderUnifiedHistory(); };
+            b.onclick = () => { onPick(it.v); movShown = movStep; renderUnifiedHistory(); };
             r.appendChild(b);
           });
           d.appendChild(r); dc.appendChild(d);
@@ -1476,14 +1484,18 @@
           const b = document.createElement('button'); b.type = 'button';
           b.className = 'tap-scale px-3 py-1 rounded-full bg-[var(--secondary)] text-[var(--primary)] text-xs font-semibold cursor-pointer';
           b.textContent = `${tg.l} ×`;
-          b.onclick = () => { tg.fn(); renderUnifiedHistory(); };
+          b.onclick = () => { tg.fn(); movShown = movStep; renderUnifiedHistory(); };
           tagsBox.appendChild(b);
         });
         if (tags.length || fState.q || fState.scope !== 'all') {
           const rst = document.createElement('button'); rst.type = 'button';
           rst.className = 'text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline cursor-pointer ml-1 py-1';
           rst.textContent = 'Restablecer';
-          rst.onclick = () => { fState = { scope: 'all', q: '', month: '', date: '', cat: 'all', acct: 'all', pago: 'all', open: fState.open }; renderUnifiedHistory(); };
+          rst.onclick = () => {
+            fState = { scope: 'all', q: '', month: '', date: '', cat: 'all', acct: 'all', pago: 'all', open: fState.open };
+            movShown = movStep;
+            renderUnifiedHistory();
+          };
           tagsBox.appendChild(rst);
         }
 
@@ -1503,12 +1515,15 @@
           return true;
         });
 
+        const visibleItems = movStep === Infinity ? filtered : filtered.slice(0, movShown);
+        const remaining = filtered.length - visibleItems.length;
+
         let sumIn = 0, sumOut = 0;
         filtered.forEach((i) => { if (i._isNeg) sumOut += i.amt; else sumIn += i.amt; });
         const net = sumIn - sumOut;
         $('f-stats').innerHTML = `
-          <span class="text-[var(--muted-foreground)]"><strong class="text-[var(--foreground)]">${filtered.length}</strong> ${filtered.length === 1 ? 'movimiento' : 'movimientos'}</span>
-          <span class="tabular-nums flex items-center gap-3 flex-wrap">
+          <span class="text-[var(--muted-foreground)]"><strong class="text-[var(--foreground)]">${visibleItems.length}</strong> de <strong class="text-[var(--foreground)]">${filtered.length}</strong></span>
+          <span class="tabular-nums flex items-center gap-2.5 flex-wrap">
             ${sumIn > 0 ? `<span style="color:var(--success);">+${fm(sumIn)}</span>` : ''}
             ${sumOut > 0 ? `<span style="color:var(--error);">−${fm(sumOut)}</span>` : ''}
             <strong style="color:${net < 0 ? 'var(--error)' : 'var(--foreground)'};">Neto: ${net > 0 ? '+' : ''}${fm(net)}</strong>
@@ -1516,18 +1531,55 @@
         `;
 
         const res = $('f-results'); res.innerHTML = '';
-        if (!filtered.length) res.innerHTML = '<div class="py-10 text-center text-xs text-[var(--muted-foreground)]">Sin coincidencias con este filtro.</div>';
-        else filtered.forEach((item) => res.appendChild(buildUnifiedRow(item)));
+        if (!visibleItems.length) {
+          res.innerHTML = '<div class="py-10 text-center text-xs text-[var(--muted-foreground)]">Sin movimientos registrados aún.</div>';
+        } else {
+          visibleItems.forEach((item) => res.appendChild(buildUnifiedRow(item)));
+        }
+
+        const moreWrap = $('f-more-wrap');
+        if (remaining > 0) {
+          moreWrap.classList.remove('hidden');
+          const nextBatch = Math.min(movStep, remaining);
+          $('f-more-btn').textContent = `Mostrar ${nextBatch} más (${remaining} restantes)`;
+        } else {
+          moreWrap.classList.add('hidden');
+        }
+        updateScrollTopBtn();
       }
 
-      $('f-toggle').onclick = () => { fState.open = !fState.open; renderUnifiedHistory(); };
-      $('f-search').oninput = (e) => { fState.q = e.target.value; renderUnifiedHistory(); };
-      $('f-clear').onclick = () => { fState.q = ''; renderUnifiedHistory(); };
-      $('f-month').onchange = (e) => { fState.month = e.target.value; if (fState.month && fState.date) fState.date = ''; renderUnifiedHistory(); };
-      $('f-date').onchange = (e) => { fState.date = e.target.value; if (fState.date) fState.month = ''; renderUnifiedHistory(); };
-      $('jump-all-movs').onclick = () => { fState = { scope: 'all', q: '', month: '', date: '', cat: 'all', acct: 'all', pago: 'all', open: false }; switchView('historial'); };
+      $('f-limit-sel').onchange = (e) => {
+        const val = e.target.value;
+        if (val === 'all') {
+          movStep = Infinity;
+          movShown = Infinity;
+        } else {
+          movStep = parseInt(val, 10) || 15;
+          movShown = movStep;
+        }
+        renderUnifiedHistory();
+      };
+      $('f-more-btn').onclick = () => {
+        movShown += movStep;
+        renderUnifiedHistory();
+      };
+      $('f-all-btn').onclick = () => {
+        movShown = Infinity;
+        renderUnifiedHistory();
+      };
 
-      // ===== Corte Modal (Responsivo: Tarjetas en móvil + Tabla completa en escritorio + Excel .xlsx) =====
+      $('f-toggle').onclick = () => { fState.open = !fState.open; renderUnifiedHistory(); };
+      $('f-search').oninput = (e) => { fState.q = e.target.value; movShown = movStep; renderUnifiedHistory(); };
+      $('f-clear').onclick = () => { fState.q = ''; movShown = movStep; renderUnifiedHistory(); };
+      $('f-month').onchange = (e) => { fState.month = e.target.value; if (fState.month && fState.date) fState.date = ''; movShown = movStep; renderUnifiedHistory(); };
+      $('f-date').onchange = (e) => { fState.date = e.target.value; if (fState.date) fState.month = ''; movShown = movStep; renderUnifiedHistory(); };
+      $('jump-all-movs').onclick = () => {
+        fState = { scope: 'all', q: '', month: '', date: '', cat: 'all', acct: 'all', pago: 'all', open: false };
+        movShown = movStep;
+        switchView('historial');
+      };
+
+      // ===== Corte Modal =====
       function buildCut(ym) {
         const inM = (r) => r.date && r.date.slice(0, 7) === ym;
         const R = state.rows.filter(inM), S = state.sav.filter(inM), G = state.goal.filter(inM);
@@ -1693,7 +1745,6 @@
 
           XLSX.writeFile(wb, `corte-${cutMonth}.xlsx`);
         } else {
-          // Respaldo CSV si no hay conexión a CDN
           const lines = [['Corte de mes', c.label], ['Ingresos', r2(c.ing)], ['Gastos', r2(c.gas)], ['Balance', r2(c.net)], ['Intereses', r2(c.t.int)], [], ['Fecha', 'Tipo', 'Categoría', 'Cuenta', 'Pago', 'Nota', 'Monto']];
           c.R.forEach((r) => lines.push([r.date, r.type, r.cat, r.acct || '', r.pago || '', r.note || '', r.type === 'gasto' ? -r.amt : r.amt]));
           c.S.forEach((r) => lines.push([r.date, 'ahorro_' + r.type, 'Ahorro', r.cat, '', r.note || '', r.type === 'retiro' ? -r.amt : r.amt]));
@@ -1949,7 +2000,7 @@
       $('acct-m-save').onclick = () => { if (onAcctSave) onAcctSave(); };
       $('acct-m-del').onclick = () => { if (onAcctDel) onAcctDel(); };
 
-      // ===== Sync & Reset Handlers =====
+      // ===== Sync Handlers =====
       document.querySelectorAll('[data-open-sync]').forEach((b) => {
         b.onclick = () => { $('sync-url').value = (state.cfg && state.cfg.url) || ''; $('sync-token').value = (state.cfg && state.cfg.token) || ''; $('sync-modal').classList.remove('hidden'); };
       });
@@ -1979,15 +2030,6 @@
         $('sync-modal').classList.add('hidden');
         toast('Desconectado');
       };
-      document.querySelectorAll('[data-reset-demo]').forEach((b) => {
-        b.onclick = () => {
-          if (!confirm('¿Restaurar los datos de demostración? Se reemplazarán los datos locales actuales.')) return;
-          const prevCfg = state.cfg;
-          state = createDemoState();
-          state.cfg = prevCfg;
-          saveState(); renderAll(); toast('Datos demo restaurados');
-        };
-      });
 
       window.addEventListener('online', () => { flushQueue().then(pullRemote); });
       document.addEventListener('visibilitychange', () => {
@@ -1995,12 +2037,6 @@
           if (runAutoSubscriptions()) renderAll();
           flushQueue();
         }
-      });
-
-      let resizeTimer = null;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => { if (currentView === 'balance') renderBalance(); }, 180);
       });
 
       if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {

@@ -175,7 +175,7 @@
             <div class="font-bold text-sm leading-tight truncate">Mis Finanzas</div>
             <div class="text-xs text-[var(--muted-foreground)] flex items-center gap-1.5 mt-0.5">
               <span class="sync-dot-el w-1.5 h-1.5 rounded-full inline-block flex-none"></span>
-              <span class="sync-lbl-el truncate">Modo local</span>
+              <span class="sync-lbl-el truncate">Sin sesión</span>
             </div>
           </div>
         </div>
@@ -214,10 +214,10 @@
         </button>
         <button data-open-sync type="button" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--content)] cursor-pointer transition-colors">
           <span class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
-            <span>Base de datos SQL</span>
+            <svg class="w-4 h-4 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Cuenta y respaldo</span>
           </span>
-          <span class="text-[var(--primary)]">Cuenta</span>
+          <span class="text-[var(--primary)]">Abrir ›</span>
         </button>
       </div>
     </aside>
@@ -253,13 +253,13 @@
               <div id="mobile-menu-pop" class="hidden absolute right-0 top-12 w-64 max-w-[calc(100vw-2rem)] bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl p-2 z-30 space-y-1">
                 <div class="px-3 py-2 text-xs text-[var(--muted-foreground)] flex items-center gap-2 border-b border-[var(--border)] mb-1">
                   <span class="sync-dot-el w-2 h-2 rounded-full inline-block flex-none"></span>
-                  <span class="sync-lbl-el truncate">Modo local</span>
+                  <span class="sync-lbl-el truncate">Sin sesión</span>
                 </div>
                 <button data-open-cut type="button" class="mob-menu-act w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium hover:bg-[var(--content)] active:bg-[var(--content)] flex items-center gap-2.5 cursor-pointer">
                   <span>📄</span><span>Hacer corte de mes</span>
                 </button>
                 <button data-open-sync type="button" class="mob-menu-act w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium hover:bg-[var(--content)] active:bg-[var(--content)] flex items-center gap-2.5 cursor-pointer">
-                  <span>🗄️</span><span>Base de datos SQL / Cuenta</span>
+                  <span>👤</span><span>Cuenta y respaldo en la nube</span>
                 </button>
                 <div class="border-t border-[var(--border)] pt-2 mt-1 px-2 pb-1 flex items-center justify-between gap-2">
                   <span class="text-xs font-medium text-[var(--muted-foreground)]">Tema</span>
@@ -571,50 +571,43 @@
     </div>
   </div>
 
-  <!-- MODAL: BASE DE DATOS SQL (SUPABASE MULTIUSUARIO) -->
+  <!-- MODAL: CUENTA Y RESPALDO EN LA NUBE (SOLO INICIO DE SESIÓN / REGISTRO) -->
   <div id="sync-modal" class="modal-backdrop hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="animate-sheet overscroll-contain bg-[var(--card)] border border-[var(--border)] w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
+    <div class="animate-sheet overscroll-contain bg-[var(--card)] border border-[var(--border)] w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
       <div class="w-10 h-1 rounded-full bg-[var(--border)] mx-auto sm:hidden"></div>
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-base sm:text-sm font-bold">Base de datos SQL (Supabase)</h3>
-          <p class="text-xs text-[var(--muted-foreground)]">Sincronización multiusuario en tiempo real</p>
+          <h3 class="text-base sm:text-sm font-bold">Cuenta y respaldo</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Sincroniza tus finanzas en todos tus dispositivos</p>
         </div>
         <button id="sync-close" type="button" aria-label="Cerrar" class="tap-scale w-9 h-9 rounded-full bg-[var(--content)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] grid place-items-center cursor-pointer">✕</button>
       </div>
 
-      <!-- Paso 1: Conexión al proyecto -->
-      <div class="space-y-2 p-3 rounded-xl bg-[var(--content)] border border-[var(--border)]">
-        <div class="text-xs font-semibold">1. Proyecto Supabase</div>
-        <input id="sb-url" type="url" placeholder="Project URL (https://xxxx.supabase.co)" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
-        <input id="sb-key" type="text" placeholder="Publishable key (sb_publishable_...)" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
-        <button id="sb-save-cfg" type="button" class="tap-scale w-full h-9 rounded-xl bg-[var(--secondary)] text-[var(--primary)] text-xs font-semibold cursor-pointer">Guardar llaves de conexión</button>
-      </div>
-
-      <!-- Paso 2: Sesión de usuario (cuando no hay sesión) -->
-      <div id="sb-auth-form" class="space-y-2.5 p-3 rounded-xl bg-[var(--content)] border border-[var(--border)]">
-        <div class="text-xs font-semibold">2. Cuenta de usuario</div>
-        <p class="text-[11px] text-[var(--muted-foreground)]">Cada usuario inicia sesión con su correo y contraseña; sus datos se aíslan automáticamente.</p>
-        <input id="sb-email" type="email" autocomplete="email" placeholder="Correo electrónico" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
-        <input id="sb-pass" type="password" autocomplete="current-password" placeholder="Contraseña (mín. 6 caracteres)" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
-        <div class="grid grid-cols-2 gap-2 pt-0.5">
-          <button id="sb-signup-btn" type="button" class="tap-scale h-10 sm:h-9 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-semibold cursor-pointer">Crear cuenta</button>
-          <button id="sb-signin-btn" type="button" class="tap-scale h-10 sm:h-9 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Iniciar sesión</button>
+      <!-- Formulario de acceso para usuarios -->
+      <div id="sb-auth-form" class="space-y-3">
+        <p class="text-xs text-[var(--muted-foreground)]">Inicia sesión con tu correo y contraseña o crea una cuenta nueva. Tu información es privada y solo tú puedes verla.</p>
+        <div class="space-y-2">
+          <input id="sb-email" type="email" autocomplete="email" placeholder="Correo electrónico" class="w-full h-11 sm:h-10 px-3 rounded-xl bg-[var(--content)] border border-[var(--border)] text-sm sm:text-xs focus:outline-none focus:border-[var(--primary)]" />
+          <input id="sb-pass" type="password" autocomplete="current-password" placeholder="Contraseña (mín. 6 caracteres)" class="w-full h-11 sm:h-10 px-3 rounded-xl bg-[var(--content)] border border-[var(--border)] text-sm sm:text-xs focus:outline-none focus:border-[var(--primary)]" />
+        </div>
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button id="sb-signup-btn" type="button" class="tap-scale h-11 sm:h-10 rounded-xl bg-[var(--secondary)] text-[var(--secondary-foreground)] text-xs font-semibold cursor-pointer">Crear cuenta</button>
+          <button id="sb-signin-btn" type="button" class="tap-scale h-11 sm:h-10 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Iniciar sesión</button>
         </div>
       </div>
 
       <!-- Panel activo cuando hay sesión iniciada -->
-      <div id="sb-user-box" class="hidden space-y-2.5 p-3 rounded-xl bg-[var(--content)] border border-[var(--border)]">
-        <div class="flex items-center justify-between gap-2">
+      <div id="sb-user-box" class="hidden space-y-3">
+        <div class="p-3.5 rounded-xl bg-[var(--content)] border border-[var(--border)] flex items-center justify-between gap-2">
           <div class="min-w-0">
             <div class="text-[11px] text-[var(--muted-foreground)]">Sesión activa</div>
             <div id="sb-user-email" class="text-xs font-semibold truncate">usuario@correo.com</div>
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold" style="background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success);">PostgreSQL ✓</span>
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex-none" style="background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success);">Conectado ✓</span>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="sb-sync-now" type="button" class="tap-scale h-9 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Sincronizar ahora</button>
-          <button id="sb-signout-btn" type="button" class="tap-scale h-9 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-semibold cursor-pointer" style="color: var(--error);">Cerrar sesión</button>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button id="sb-sync-now" type="button" class="tap-scale h-10 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Sincronizar ahora</button>
+          <button id="sb-signout-btn" type="button" class="tap-scale h-10 rounded-xl bg-[var(--content)] border border-[var(--border)] text-xs font-semibold cursor-pointer" style="color: var(--error);">Cerrar sesión</button>
         </div>
       </div>
     </div>
@@ -628,6 +621,13 @@
 
   <script>
     (function () {
+      // =========================================================================
+      // CONFIGURACIÓN DE SUPABASE (PEGA AQUÍ TU PROJECT URL Y PUBLISHABLE KEY)
+      // =========================================================================
+      const SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_XA1HVCTJLK0yo1p190dA8g_Bcweu...';
+      // =========================================================================
+
       const $ = (id) => document.getElementById(id);
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       const pad = (n) => ('0' + n).slice(-2);
@@ -695,8 +695,7 @@
             goal: Array.isArray(legacy.goal) ? legacy.goal : [],
             sav: Array.isArray(legacy.sav) ? legacy.sav : [],
             rows: Array.isArray(legacy.rows) ? legacy.rows : [],
-            cuts: legacy.cuts || {},
-            sbCfg: { url: '', key: '' }
+            cuts: legacy.cuts || {}
           };
         }
         return {
@@ -709,8 +708,7 @@
           goal: [],
           sav: [],
           rows: [],
-          cuts: {},
-          sbCfg: { url: '', key: '' }
+          cuts: {}
         };
       }
 
@@ -723,7 +721,6 @@
         try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
       }
       if (!Array.isArray(state.skips)) state.skips = [];
-      if (!state.sbCfg) state.sbCfg = { url: '', key: '' };
       const saveState = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} };
 
       let hideAmounts = false;
@@ -755,7 +752,8 @@
       const goalIconByName = (nm) => { const g = state.gdef.find((x) => x.cat === nm); return g ? goalIcon(g) : '🎯'; };
 
       // ===== Supabase Client + Cola Offline =====
-      let sbClient = null;
+      const hasValidConfig = SUPABASE_URL.startsWith('http') && !SUPABASE_URL.includes('TU-PROYECTO') && SUPABASE_KEY.length > 20;
+      const sbClient = (hasValidConfig && window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
       let sbUser = null;
       let syncQueue = [];
       let syncState = 'idle';
@@ -771,35 +769,21 @@
         sub: 'suscripciones'
       };
 
-      function initSupabaseClient() {
-        const u = (state.sbCfg && state.sbCfg.url || '').trim();
-        const k = (state.sbCfg && state.sbCfg.key || '').trim();
-        if (!u || !k || !window.supabase) {
-          sbClient = null;
-          sbUser = null;
-          updateSyncUI();
-          return null;
-        }
-        sbClient = window.supabase.createClient(u, k);
-        return sbClient;
-      }
-
       function updateSyncUI() {
-        const hasCfg = !!(state.sbCfg && state.sbCfg.url && state.sbCfg.key);
         const loggedIn = !!(sbClient && sbUser);
         document.querySelectorAll('.sync-dot-el').forEach((d) => {
-          d.style.background = !hasCfg ? 'var(--muted-foreground)'
+          d.style.background = !sbClient ? 'var(--muted-foreground)'
             : !loggedIn ? 'var(--warning)'
             : (syncState === 'err' || syncQueue.length) ? 'var(--warning)'
             : 'var(--success)';
         });
         document.querySelectorAll('.sync-lbl-el').forEach((l) => {
-          l.textContent = !hasCfg ? 'Modo local'
-            : !loggedIn ? 'Inicia sesión SQL'
+          l.textContent = !sbClient ? 'Modo local'
+            : !loggedIn ? 'Inicia sesión'
             : syncState === 'syncing' ? 'Sincronizando…'
             : syncQueue.length ? `Pendiente (${syncQueue.length})`
             : syncState === 'err' ? 'Sin conexión (local)'
-            : `SQL: ${sbUser.email.split('@')[0]} ✓`;
+            : `${sbUser.email.split('@')[0]} ✓`;
         });
         if ($('sb-auth-form') && $('sb-user-box')) {
           $('sb-auth-form').classList.toggle('hidden', loggedIn);
@@ -809,7 +793,7 @@
       }
 
       function enqueueOp(op) {
-        if (!state.sbCfg || !state.sbCfg.url || !state.sbCfg.key) return;
+        if (!sbClient) return;
         syncQueue.push(op);
         saveQueue();
         flushQueue();
@@ -862,7 +846,6 @@
         }
       }
 
-      // Migra todo lo almacenado localmente a Supabase antes de descargar
       async function migrateLocalToSupabase() {
         if (!sbClient || !sbUser) return;
         const uid = sbUser.id;
@@ -992,7 +975,7 @@
           if (added) {
             runAutoSubscriptions();
             saveState(); renderAll();
-            if (!silent) toast(`${added} registros sincronizados desde SQL`);
+            if (!silent) toast(`${added} registros sincronizados`);
           }
           syncState = 'ok'; updateSyncUI();
         } catch (e) {
@@ -1001,17 +984,16 @@
       }
 
       async function bootSupabaseSession() {
-        const client = initSupabaseClient();
-        if (!client) return;
+        if (!sbClient) { updateSyncUI(); return; }
         try {
-          const { data } = await client.auth.getSession();
+          const { data } = await sbClient.auth.getSession();
           sbUser = data && data.session ? data.session.user : null;
           updateSyncUI();
           if (sbUser) {
             await flushQueue();
             await pullRemote(true);
           }
-          client.auth.onAuthStateChange(async (_event, session) => {
+          sbClient.auth.onAuthStateChange(async (_event, session) => {
             sbUser = session ? session.user : null;
             updateSyncUI();
           });
@@ -1162,6 +1144,7 @@
         } else if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') {
           if (!$('tx-modal').classList.contains('hidden')) { e.preventDefault(); $('tx-save').click(); }
           else if (!$('acct-modal').classList.contains('hidden')) { e.preventDefault(); $('acct-m-save').click(); }
+          else if (!$('sync-modal').classList.contains('hidden') && !$('sb-auth-form').classList.contains('hidden')) { e.preventDefault(); $('sb-signin-btn').click(); }
         }
       });
 
@@ -2214,38 +2197,19 @@
       $('acct-m-save').onclick = () => { if (onAcctSave) onAcctSave(); };
       $('acct-m-del').onclick = () => { if (onAcctDel) onAcctDel(); };
 
-      // ===== Supabase Handlers =====
+      // ===== Auth & Sync Modal Handlers =====
       document.querySelectorAll('[data-open-sync]').forEach((b) => {
         b.onclick = () => {
-          $('sb-url').value = (state.sbCfg && state.sbCfg.url) || '';
-          $('sb-key').value = (state.sbCfg && state.sbCfg.key) || '';
           updateSyncUI();
           $('sync-modal').classList.remove('hidden');
+          if (!sbUser) setTimeout(() => $('sb-email').focus(), 60);
         };
       });
       $('sync-close').onclick = () => $('sync-modal').classList.add('hidden');
       $('sync-modal').onclick = (e) => { if (e.target === $('sync-modal')) $('sync-modal').classList.add('hidden'); };
 
-      $('sb-save-cfg').onclick = async () => {
-        const u = $('sb-url').value.trim();
-        const k = $('sb-key').value.trim();
-        if (!u || !k) {
-          state.sbCfg = { url: '', key: '' };
-          sbClient = null; sbUser = null;
-          saveState(); updateSyncUI();
-          return toast('Modo local activo');
-        }
-        state.sbCfg = { url: u, key: k };
-        saveState();
-        initSupabaseClient();
-        toast('Proyecto guardado. Inicia sesión abajo.');
-      };
-
       $('sb-signup-btn').onclick = async () => {
-        if (!sbClient) {
-          $('sb-save-cfg').click();
-          if (!sbClient) return toast('Primero pega tu URL y Publishable key');
-        }
+        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en el archivo');
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
         if (!email || password.length < 6) return toast('Ingresa correo y contraseña (mín. 6 caracteres)');
@@ -2258,30 +2222,27 @@
           await migrateLocalToSupabase();
           await pullRemote(false);
           $('sync-modal').classList.add('hidden');
-          toast('Cuenta creada y datos migrados ✓');
+          toast('Cuenta creada y respaldada ✓');
         } else {
           toast('Cuenta creada. Revisa tu correo o inicia sesión.');
         }
       };
 
       $('sb-signin-btn').onclick = async () => {
-        if (!sbClient) {
-          $('sb-save-cfg').click();
-          if (!sbClient) return toast('Primero pega tu URL y Publishable key');
-        }
+        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en el archivo');
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
         if (!email || !password) return toast('Escribe tu correo y contraseña');
         toast('Iniciando sesión…');
         const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-        if (error) return toast(error.message || 'Credenciales incorrectas');
+        if (error) return toast(error.message || 'Correo o contraseña incorrectos');
         sbUser = data.user;
         updateSyncUI();
         await migrateLocalToSupabase();
         await flushQueue();
         await pullRemote(false);
         $('sync-modal').classList.add('hidden');
-        toast('Conectado a PostgreSQL ✓');
+        toast('Sesión iniciada ✓');
       };
 
       $('sb-sync-now').onclick = async () => {
@@ -2298,7 +2259,7 @@
         sbUser = null;
         syncQueue = []; saveQueue();
         syncState = 'idle'; updateSyncUI();
-        toast('Sesión cerrada (datos locales conservados)');
+        toast('Sesión cerrada');
       };
 
       window.addEventListener('online', () => { flushQueue().then(() => pullRemote(true)); });

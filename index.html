@@ -638,7 +638,7 @@
       // =========================================================================
       // CONFIGURACIÓN DE SUPABASE (PEGA AQUÍ TU PROJECT URL Y PUBLISHABLE KEY)
       // =========================================================================
-      const SUPABASE_URL = 'https://ilgngewexuanqozoftkr.supabase.co/rest/v1/';
+      const SUPABASE_URL = 'https://ilgngewexuanqozoftkr.supabase.co';
       const SUPABASE_KEY = 'sb_publishable_XA1HVCTJLK0yo1p19OdA8g_BcweuPR8';
       // =========================================================================
 
@@ -827,6 +827,18 @@
       const sbClient = (hasValidConfig && window.supabase && typeof window.supabase.createClient === 'function')
         ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
         : null;
+
+      function checkSbReady() {
+        if (!hasValidConfig) {
+          toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html');
+          return false;
+        }
+        if (!sbClient) {
+          toast('No se pudo cargar la librería de Supabase. Revisa tu conexión o DNS.');
+          return false;
+        }
+        return true;
+      }
       let sbUser = null;
       let syncQueue = [];
       let syncState = 'idle';
@@ -2291,7 +2303,7 @@
       $('sync-modal').onclick = (e) => { if (e.target === $('sync-modal')) closeSyncModal(); };
 
       $('sb-signup-btn').onclick = async () => {
-        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html');
+        if (!checkSbReady()) return;
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
         if (!email || password.length < 6) return toast('Ingresa correo y contraseña (mín. 6 caracteres)');
@@ -2311,7 +2323,7 @@
       };
 
       $('sb-signin-btn').onclick = async () => {
-        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html');
+        if (!checkSbReady()) return;
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
         if (!email || !password) return toast('Escribe tu correo y contraseña');

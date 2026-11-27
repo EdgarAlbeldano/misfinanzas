@@ -237,6 +237,9 @@
       to { transform: rotate(360deg); }
     }
     .animate-spin-fast { animation: spinSlow 0.75s linear infinite; }
+  
+    /* Textos completos: nada se corta con "..." (se ajustan a varias líneas) */
+    .truncate { overflow: visible !important; text-overflow: clip !important; white-space: normal !important; overflow-wrap: break-word; }
   </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-0 m-0 min-h-screen transition-colors duration-200">
@@ -351,6 +354,16 @@
 
           <!-- Formulario -->
           <div class="space-y-3.5">
+            <div id="auth-name-wrap" class="hidden space-y-1.5">
+              <label for="sb-name" class="block text-xs font-semibold text-[var(--foreground)]">Nombre</label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <input id="sb-name" type="text" autocomplete="name" maxlength="40" placeholder="¿Cómo te llamas?" class="input-field h-12 sm:h-11 pl-10 pr-3.5 text-sm" />
+              </div>
+            </div>
+
             <div class="space-y-1.5">
               <label for="sb-email" class="block text-xs font-semibold text-[var(--foreground)]">Correo electrónico</label>
               <div class="relative">
@@ -609,7 +622,7 @@
               <h2 class="text-sm font-semibold">Actividad reciente</h2>
               <button id="jump-all-movs" type="button" class="tap-scale py-1 px-2 -mr-2 text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer">Ver todos ›</button>
             </div>
-            <div id="recent-unified" class="divide-y divide-[var(--border)]"></div>
+            <div id="recent-unified"></div>
           </div>
         </section>
 
@@ -691,7 +704,7 @@
           </div>
 
           <div class="surface-card px-4 sm:px-5 py-1">
-            <div id="f-results" class="divide-y divide-[var(--border)]"></div>
+            <div id="f-results"></div>
             <div id="f-more-wrap" class="hidden py-3.5 border-t border-[var(--border)] flex items-center justify-center gap-2.5">
               <button id="f-more-btn" type="button" class="tap-scale h-10 px-4 rounded-xl bg-[var(--secondary)] text-[var(--primary)] text-xs font-semibold hover:opacity-90 cursor-pointer"></button>
               <button id="f-all-btn" type="button" class="tap-scale h-10 px-3.5 rounded-xl bg-[var(--content)] border border-[var(--border)] text-xs font-semibold text-[var(--foreground)] hover:border-[var(--primary)] cursor-pointer">Mostrar todos</button>
@@ -841,6 +854,14 @@
             </div>
           </div>
           <span class="soft-success px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex-none">Activa ✓</span>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="sb-name-edit" class="block text-xs font-semibold">Tu nombre</label>
+          <div class="flex gap-2">
+            <input id="sb-name-edit" type="text" autocomplete="name" maxlength="40" placeholder="¿Cómo te llamas?" class="input-field h-11 sm:h-10 px-3.5 text-sm sm:text-xs flex-1 min-w-0" />
+            <button id="sb-name-save" type="button" class="tap-scale h-11 sm:h-10 px-4 rounded-xl bg-[var(--content)] border border-[var(--border)] text-xs font-semibold hover:border-[var(--primary)] cursor-pointer flex-none">Guardar</button>
+          </div>
         </div>
 
         <div class="px-3.5 py-2.5 rounded-xl bg-[var(--content)]/60 border border-[var(--border)] flex items-center justify-between text-xs">
@@ -1150,6 +1171,19 @@
 
       let localGuestMode = false;
 
+      // Nombre de la persona (se pide al crear la cuenta; vive en la cuenta y en este dispositivo)
+      const NAME_KEY = 'mf_user_name_v1';
+      const cleanName = (v) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+      function setUserName(v) {
+        const n = cleanName(v);
+        try { n ? localStorage.setItem(NAME_KEY, n) : localStorage.removeItem(NAME_KEY); } catch (e) {}
+      }
+      function getUserName() {
+        const fromAccount = cleanName(sbUser?.user_metadata?.name);
+        if (fromAccount) { setUserName(fromAccount); return fromAccount; }
+        try { return cleanName(localStorage.getItem(NAME_KEY)); } catch (e) { return ''; }
+      }
+
       function showAuthScreen(focusEmail) {
         $('boot-splash')?.classList.add('hidden');
         $('app-shell')?.classList.add('hidden');
@@ -1192,6 +1226,9 @@
         });
         if ($('sb-user-email')) {
           $('sb-user-email').textContent = email;
+        }
+        if ($('sb-name-edit') && document.activeElement !== $('sb-name-edit')) {
+          $('sb-name-edit').value = getUserName();
         }
         if ($('sidebar-logged-actions') && $('sidebar-login-btn')) {
           $('sidebar-logged-actions').classList.toggle('hidden', !loggedIn);
@@ -1730,11 +1767,37 @@
       // =========================================================================
       // 9. RENDERIZADO DE VISTAS Y GRÁFICAS
       // =========================================================================
+      function dayHeading(ymdStr) {
+        const [y, m, d] = ymdStr.split('-').map(Number);
+        const mon = new Date(y, m - 1, d).toLocaleDateString('es-MX', { month: 'short' }).replace('.', '');
+        const yr = y !== new Date().getFullYear() ? ` ${y}` : '';
+        return `${d} ${mon.charAt(0).toUpperCase()}${mon.slice(1)}${yr}`;
+      }
+
+      // Agrupa los movimientos (ya ordenados) bajo un encabezado por día: "26 Nov"
+      function appendGroupedRows(container, items) {
+        let curDate = null, rowsBox = null;
+        items.forEach((item) => {
+          if (item.date !== curDate) {
+            curDate = item.date;
+            const grp = document.createElement('section');
+            const h = document.createElement('h3');
+            h.className = 'pt-3 pb-0.5 text-sm font-semibold text-[var(--foreground)]';
+            h.textContent = dayHeading(curDate);
+            rowsBox = document.createElement('div');
+            rowsBox.className = 'divide-y divide-[var(--border)]';
+            grp.append(h, rowsBox);
+            container.appendChild(grp);
+          }
+          rowsBox.appendChild(buildUnifiedRow(item));
+        });
+      }
+
       function buildUnifiedRow(item) {
         const col = item._isNeg ? 'var(--error)' : 'var(--success)';
         const el = document.createElement('div');
         el.className = 'py-3 flex items-center justify-between gap-3 hover:bg-[var(--content)]/45 -mx-2 px-2 rounded-xl transition-colors';
-        const metaParts = [item.note, item._acct, item._badge && item._badge !== item._acct ? item._badge : '', fmtDate(item.date)].filter(Boolean);
+        const metaParts = [item.note, item._acct, item._badge && item._badge !== item._acct ? item._badge : ''].filter(Boolean);
         el.innerHTML = `
           <div class="flex items-center gap-3 min-w-0 flex-1">
             <div class="w-8 h-8 rounded-full grid place-items-center text-sm font-bold flex-none" style="background: color-mix(in srgb, ${col} 12%, transparent); color:${col};">${item._isNeg ? '−' : '+'}</div>
@@ -1891,10 +1954,9 @@
         $('strip-savings').textContent = fm(savTot);
 
         const cKeys = Object.keys(state.cards);
-        const mesCorto = monthLabel(curM).split(' ')[0];
-        const netMes = mi - me;
-        $('view-title').textContent = `${mesCorto} · ${netMes >= 0 ? 'Balance positivo' : 'Balance en rojo'}`;
-        $('view-subtitle').textContent = `Balance ${fm(tot)} · +${fm(mi)} ing · −${fm(me)} gas · ${fm(savTot)} en cuentas · ${cKeys.length} tarjetas · ${state.subs.length} suscripciones`;
+        const userName = getUserName();
+        $('view-title').textContent = userName ? `Bienvenido/a, ${userName}` : 'Bienvenido/a';
+        $('view-subtitle').textContent = `${monthLabel(curM)} · Tu resumen financiero`;
 
         renderAnalytics();
 
@@ -1975,7 +2037,7 @@
         ru.innerHTML = '';
         const list = getAllUnifiedMovements().slice(0, 5);
         if (!list.length) ru.innerHTML = '<div class="py-6 text-center text-xs text-[var(--muted-foreground)]">Sin actividad aún.</div>';
-        else list.forEach((item) => ru.appendChild(buildUnifiedRow(item)));
+        else appendGroupedRows(ru, list);
       }
 
       function renderSavings() {
@@ -2213,7 +2275,7 @@
         if (!visibleItems.length) {
           res.innerHTML = '<div class="py-10 text-center text-xs text-[var(--muted-foreground)]">Sin movimientos registrados aún.</div>';
         } else {
-          visibleItems.forEach((item) => res.appendChild(buildUnifiedRow(item)));
+          appendGroupedRows(res, visibleItems);
         }
 
         const moreWrap = $('f-more-wrap');
@@ -2759,6 +2821,7 @@
           ? 'Regístrate para respaldar y sincronizar tus datos en la nube.'
           : 'Accede con tu correo y contraseña para sincronizar tus finanzas.';
         $('auth-confirm-wrap').classList.toggle('hidden', !isSignup);
+        $('auth-name-wrap').classList.toggle('hidden', !isSignup);
         $('sb-pass').setAttribute('autocomplete', isSignup ? 'new-password' : 'current-password');
         $('auth-submit-lbl').textContent = isSignup ? 'Crear cuenta' : 'Iniciar sesión';
         setAuthFeedback('');
@@ -2795,6 +2858,11 @@
 
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
+        const name = cleanName($('sb-name').value);
+        if (authMode === 'signup' && !name) {
+          $('sb-name').focus();
+          return setAuthFeedback('Escribe tu nombre.', 'err');
+        }
         if (!email) {
           $('sb-email').focus();
           return setAuthFeedback('Ingresa tu correo electrónico.', 'err');
@@ -2812,11 +2880,12 @@
           }
           setAuthLoading(true, 'Creando cuenta…');
           try {
-            const { data, error } = await sbClient.auth.signUp({ email, password });
+            const { data, error } = await sbClient.auth.signUp({ email, password, options: { data: { name } } });
             if (error) {
               setAuthLoading(false);
               return setAuthFeedback(translateAuthError(error), 'err');
             }
+            setUserName(name);
             if (data?.session) {
               sbUser = data.session.user;
               localGuestMode = false;
@@ -2892,11 +2961,30 @@
       }
 
       $('sb-sync-now').onclick = triggerManualSync;
+
+      $('sb-name-save').onclick = async () => {
+        const n = cleanName($('sb-name-edit').value);
+        if (!n) return toast('Escribe tu nombre');
+        setUserName(n);
+        if (sbClient && sbUser) {
+          try {
+            const { data, error } = await sbClient.auth.updateUser({ data: { name: n } });
+            if (error) throw error;
+            if (data?.user) sbUser = data.user;
+          } catch (e) {
+            renderAll();
+            return toast('Nombre guardado aquí; no se pudo actualizar en la nube');
+          }
+        }
+        renderAll();
+        toast('Nombre actualizado ✓');
+      };
       if ($('sidebar-sync-btn')) $('sidebar-sync-btn').onclick = triggerManualSync;
 
       async function handleSignOut() {
         if (sbClient) await sbClient.auth.signOut();
         sbUser = null;
+        setUserName('');
         localGuestMode = false;
         syncQueue = [];
         saveQueue();

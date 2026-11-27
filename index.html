@@ -14,6 +14,7 @@
   <title>Mis Finanzas</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       color-scheme: light;
@@ -125,14 +126,12 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Evita el zoom automático en navegadores móviles al enfocar inputs o selects */
     @media (max-width: 640px) {
       input, select, textarea { font-size: 16px !important; }
       #tx-amt { font-size: 30px !important; }
       #f-limit-sel { font-size: 12px !important; }
     }
 
-    /* Scrollbars limpios en escritorio */
     @media (min-width: 1024px) {
       ::-webkit-scrollbar { width: 7px; height: 7px; }
       ::-webkit-scrollbar-track { background: transparent; }
@@ -215,17 +214,17 @@
         </button>
         <button data-open-sync type="button" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--content)] cursor-pointer transition-colors">
           <span class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-            <span>Google Sheets</span>
+            <svg class="w-4 h-4 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+            <span>Base de datos SQL</span>
           </span>
-          <span class="text-[var(--primary)]">Sync</span>
+          <span class="text-[var(--primary)]">Cuenta</span>
         </button>
       </div>
     </aside>
 
     <!-- MAIN COLUMN -->
     <div class="flex-1 min-w-0 flex flex-col">
-      <!-- TOP HEADER (Sticky & Safe-Area aware) -->
+      <!-- TOP HEADER -->
       <header class="sticky top-0 z-20 bg-[var(--background)]/92 backdrop-blur-md border-b border-[var(--border)]/60 lg:border-b-0" style="padding-top: env(safe-area-inset-top, 0px);">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-4 flex items-center justify-between gap-3">
           <div class="min-w-0 flex-1">
@@ -260,7 +259,7 @@
                   <span>📄</span><span>Hacer corte de mes</span>
                 </button>
                 <button data-open-sync type="button" class="mob-menu-act w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium hover:bg-[var(--content)] active:bg-[var(--content)] flex items-center gap-2.5 cursor-pointer">
-                  <span>☁️</span><span>Configurar Google Sheets</span>
+                  <span>🗄️</span><span>Base de datos SQL / Cuenta</span>
                 </button>
                 <div class="border-t border-[var(--border)] pt-2 mt-1 px-2 pb-1 flex items-center justify-between gap-2">
                   <span class="text-xs font-medium text-[var(--muted-foreground)]">Tema</span>
@@ -276,12 +275,11 @@
         </div>
       </header>
 
-      <!-- MAIN WORKSPACE (Swipeable on mobile, multi-column on desktop) -->
+      <!-- MAIN WORKSPACE -->
       <main id="main-swipe-area" class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-2.5 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10 space-y-5 min-w-0 transition-transform duration-150 ease-out">
 
         <!-- VIEW 1: RESUMEN -->
         <section id="view-balance" class="view-section space-y-5 animate-view">
-          <!-- Top Bento Row: Hero Balance (5 cols on desktop) + Analytics Chart (7 cols on desktop) -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
             <!-- Hero Card -->
             <div class="lg:col-span-5 bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-4">
@@ -384,7 +382,6 @@
               </div>
             </div>
 
-            <!-- Cuentas y Tasas Integradas -->
             <div class="pt-3.5 border-t border-[var(--border)] space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-xs font-semibold text-[var(--muted-foreground)]">Cuentas de débito y tasas anuales</span>
@@ -394,7 +391,6 @@
             </div>
           </div>
 
-          <!-- Metas Personales -->
           <div class="bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-4 sm:p-5">
             <div class="flex items-center justify-between gap-2 mb-3">
               <div class="min-w-0">
@@ -410,7 +406,6 @@
         <!-- VIEW 3: MOVIMIENTOS -->
         <section id="view-historial" class="view-section hidden space-y-4 animate-view">
           <div class="bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-4 sm:p-5 space-y-3">
-            <!-- Búsqueda + Botón Filtros -->
             <div class="flex gap-2">
               <div class="relative flex-1 min-w-0">
                 <input id="f-search" type="text" placeholder="Buscar gasto, ingreso, meta, tarjeta..." class="w-full h-11 sm:h-10 pl-9 pr-9 rounded-xl bg-[var(--content)] border border-[var(--border)] text-sm sm:text-xs text-[var(--foreground)] placeholder:text-[var(--placeholder)] focus:outline-none focus:border-[var(--primary)]" />
@@ -424,13 +419,9 @@
               </button>
             </div>
 
-            <!-- Quick Scope Pills -->
             <div id="f-scope-pills" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
-
-            <!-- Active Filter Tags -->
             <div id="f-tags" class="hidden flex flex-wrap items-center gap-1.5"></div>
 
-            <!-- Collapsible Smart Filter Drawer -->
             <div id="f-drawer" class="hidden pt-3 border-t border-[var(--border)] space-y-3">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <select id="f-month" aria-label="Filtrar por mes" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--content)] border border-[var(--border)] text-sm sm:text-xs"></select>
@@ -439,7 +430,6 @@
               <div id="f-dynamic-chips" class="space-y-2.5"></div>
             </div>
 
-            <!-- Live Smart Totals Bar + Selector de cantidad -->
             <div class="pt-2.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2 text-xs">
               <div id="f-stats" class="flex flex-wrap items-center gap-x-3 gap-y-1"></div>
               <div class="flex items-center gap-1.5 flex-none">
@@ -454,7 +444,6 @@
             </div>
           </div>
 
-          <!-- Unified Results -->
           <div class="bg-[var(--card)] border border-[var(--card-border)] rounded-2xl px-4 sm:px-5 py-1">
             <div id="f-results" class="divide-y divide-[var(--border)]"></div>
             <div id="f-more-wrap" class="hidden py-3.5 border-t border-[var(--border)] flex items-center justify-center gap-2.5">
@@ -510,7 +499,6 @@
         <div id="tx-cat-chips" class="flex flex-wrap gap-1.5"></div>
       </div>
 
-      <!-- Integración suscripción recurrente -->
       <div id="tx-sub-box" class="hidden p-3 rounded-xl bg-[var(--content)] border border-[var(--border)] space-y-2.5">
         <div class="flex items-center justify-between gap-2">
           <span class="text-xs font-medium">¿Repetir cada mes automáticamente?</span>
@@ -583,22 +571,51 @@
     </div>
   </div>
 
-  <!-- MODAL: GOOGLE SHEETS SYNC -->
+  <!-- MODAL: BASE DE DATOS SQL (SUPABASE MULTIUSUARIO) -->
   <div id="sync-modal" class="modal-backdrop hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="animate-sheet overscroll-contain bg-[var(--card)] border border-[var(--border)] w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl space-y-4 max-h-[90dvh] overflow-y-auto">
       <div class="w-10 h-1 rounded-full bg-[var(--border)] mx-auto sm:hidden"></div>
       <div class="flex items-center justify-between">
-        <h3 class="text-base sm:text-sm font-bold">Google Drive / Sheets</h3>
+        <div>
+          <h3 class="text-base sm:text-sm font-bold">Base de datos SQL (Supabase)</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Sincronización multiusuario en tiempo real</p>
+        </div>
         <button id="sync-close" type="button" aria-label="Cerrar" class="tap-scale w-9 h-9 rounded-full bg-[var(--content)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] grid place-items-center cursor-pointer">✕</button>
       </div>
-      <p class="text-xs text-[var(--muted-foreground)]">Conecta tu Web App de Apps Script (/exec) para respaldar y sincronizar automáticamente entre móvil y escritorio.</p>
-      <div class="space-y-2.5">
-        <input id="sync-url" type="url" placeholder="URL (/exec)" class="w-full h-11 sm:h-10 px-3 rounded-xl bg-[var(--content)] border border-[var(--border)] text-sm sm:text-xs" />
-        <input id="sync-token" type="password" placeholder="Token del script" class="w-full h-11 sm:h-10 px-3 rounded-xl bg-[var(--content)] border border-[var(--border)] text-sm sm:text-xs" />
+
+      <!-- Paso 1: Conexión al proyecto -->
+      <div class="space-y-2 p-3 rounded-xl bg-[var(--content)] border border-[var(--border)]">
+        <div class="text-xs font-semibold">1. Proyecto Supabase</div>
+        <input id="sb-url" type="url" placeholder="Project URL (https://xxxx.supabase.co)" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
+        <input id="sb-key" type="text" placeholder="Publishable key (sb_publishable_...)" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
+        <button id="sb-save-cfg" type="button" class="tap-scale w-full h-9 rounded-xl bg-[var(--secondary)] text-[var(--primary)] text-xs font-semibold cursor-pointer">Guardar llaves de conexión</button>
       </div>
-      <div class="flex gap-2">
-        <button id="sync-clear" type="button" class="tap-scale h-11 sm:h-10 px-3.5 rounded-xl bg-[var(--secondary)] text-xs font-semibold cursor-pointer" style="color: var(--error);">Desconectar</button>
-        <button id="sync-save" type="button" class="tap-scale flex-1 h-11 sm:h-10 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Guardar y conectar</button>
+
+      <!-- Paso 2: Sesión de usuario (cuando no hay sesión) -->
+      <div id="sb-auth-form" class="space-y-2.5 p-3 rounded-xl bg-[var(--content)] border border-[var(--border)]">
+        <div class="text-xs font-semibold">2. Cuenta de usuario</div>
+        <p class="text-[11px] text-[var(--muted-foreground)]">Cada usuario inicia sesión con su correo y contraseña; sus datos se aíslan automáticamente.</p>
+        <input id="sb-email" type="email" autocomplete="email" placeholder="Correo electrónico" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
+        <input id="sb-pass" type="password" autocomplete="current-password" placeholder="Contraseña (mín. 6 caracteres)" class="w-full h-10 sm:h-9 px-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm sm:text-xs" />
+        <div class="grid grid-cols-2 gap-2 pt-0.5">
+          <button id="sb-signup-btn" type="button" class="tap-scale h-10 sm:h-9 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-semibold cursor-pointer">Crear cuenta</button>
+          <button id="sb-signin-btn" type="button" class="tap-scale h-10 sm:h-9 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Iniciar sesión</button>
+        </div>
+      </div>
+
+      <!-- Panel activo cuando hay sesión iniciada -->
+      <div id="sb-user-box" class="hidden space-y-2.5 p-3 rounded-xl bg-[var(--content)] border border-[var(--border)]">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[11px] text-[var(--muted-foreground)]">Sesión activa</div>
+            <div id="sb-user-email" class="text-xs font-semibold truncate">usuario@correo.com</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold" style="background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success);">PostgreSQL ✓</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="sb-sync-now" type="button" class="tap-scale h-9 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Sincronizar ahora</button>
+          <button id="sb-signout-btn" type="button" class="tap-scale h-9 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-semibold cursor-pointer" style="color: var(--error);">Cerrar sesión</button>
+        </div>
       </div>
     </div>
   </div>
@@ -661,12 +678,27 @@
         sysDarkMq.addEventListener('change', () => { if (themeMode === 'auto') applyTheme('auto'); });
       }
 
+      // ===== Estado inicial (rescatando datos previos sin perder nada) =====
       function createInitialState() {
-        let prevCfg = { url: '', token: '' };
+        let legacy = null;
         try {
-          const old = JSON.parse(localStorage.getItem('mf_genui_state_v3') || 'null');
-          if (old && old.cfg && (old.cfg.url || old.cfg.token)) prevCfg = old.cfg;
+          legacy = JSON.parse(localStorage.getItem('mf_genui_state_v3') || 'null');
         } catch (e) {}
+        if (legacy && Array.isArray(legacy.rows)) {
+          return {
+            banks: Array.isArray(legacy.banks) ? legacy.banks : [],
+            cards: legacy.cards || {},
+            rates: legacy.rates || {},
+            subs: Array.isArray(legacy.subs) ? legacy.subs : [],
+            skips: Array.isArray(legacy.skips) ? legacy.skips : [],
+            gdef: Array.isArray(legacy.gdef) ? legacy.gdef : [],
+            goal: Array.isArray(legacy.goal) ? legacy.goal : [],
+            sav: Array.isArray(legacy.sav) ? legacy.sav : [],
+            rows: Array.isArray(legacy.rows) ? legacy.rows : [],
+            cuts: legacy.cuts || {},
+            sbCfg: { url: '', key: '' }
+          };
+        }
         return {
           banks: [],
           cards: {},
@@ -678,12 +710,12 @@
           sav: [],
           rows: [],
           cuts: {},
-          cfg: prevCfg
+          sbCfg: { url: '', key: '' }
         };
       }
 
       const STORE_KEY = 'mf_genui_state_v4';
-      const Q_KEY = 'mf_sync_queue_v1';
+      const Q_KEY = 'mf_sb_queue_v1';
       let state = null;
       try { state = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) {}
       if (!state || !Array.isArray(state.rows)) {
@@ -691,6 +723,7 @@
         try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
       }
       if (!Array.isArray(state.skips)) state.skips = [];
+      if (!state.sbCfg) state.sbCfg = { url: '', key: '' };
       const saveState = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} };
 
       let hideAmounts = false;
@@ -721,53 +754,106 @@
       const goalIcon = (g) => (g && g.note && g.note.trim() ? g.note.trim().split(' ')[0] : '🎯');
       const goalIconByName = (nm) => { const g = state.gdef.find((x) => x.cat === nm); return g ? goalIcon(g) : '🎯'; };
 
-      // ===== Sync Queue (Offline + Online compatible con Code.gs) =====
+      // ===== Supabase Client + Cola Offline =====
+      let sbClient = null;
+      let sbUser = null;
       let syncQueue = [];
       let syncState = 'idle';
       let flushing = false;
       try { syncQueue = JSON.parse(localStorage.getItem(Q_KEY) || '[]') || []; } catch (e) { syncQueue = []; }
       const saveQueue = () => { try { localStorage.setItem(Q_KEY, JSON.stringify(syncQueue)); } catch (e) {} };
 
+      const TABLE_MAP = {
+        rows: 'movimientos',
+        sav: 'ahorros',
+        gdef: 'metas_def',
+        goal: 'metas_movs',
+        sub: 'suscripciones'
+      };
+
+      function initSupabaseClient() {
+        const u = (state.sbCfg && state.sbCfg.url || '').trim();
+        const k = (state.sbCfg && state.sbCfg.key || '').trim();
+        if (!u || !k || !window.supabase) {
+          sbClient = null;
+          sbUser = null;
+          updateSyncUI();
+          return null;
+        }
+        sbClient = window.supabase.createClient(u, k);
+        return sbClient;
+      }
+
       function updateSyncUI() {
-        const on = !!(state.cfg && state.cfg.url && state.cfg.token);
+        const hasCfg = !!(state.sbCfg && state.sbCfg.url && state.sbCfg.key);
+        const loggedIn = !!(sbClient && sbUser);
         document.querySelectorAll('.sync-dot-el').forEach((d) => {
-          d.style.background = !on ? 'var(--muted-foreground)' : (syncState === 'err' || syncQueue.length) ? 'var(--warning)' : 'var(--success)';
+          d.style.background = !hasCfg ? 'var(--muted-foreground)'
+            : !loggedIn ? 'var(--warning)'
+            : (syncState === 'err' || syncQueue.length) ? 'var(--warning)'
+            : 'var(--success)';
         });
         document.querySelectorAll('.sync-lbl-el').forEach((l) => {
-          l.textContent = !on ? 'Modo local'
+          l.textContent = !hasCfg ? 'Modo local'
+            : !loggedIn ? 'Inicia sesión SQL'
             : syncState === 'syncing' ? 'Sincronizando…'
             : syncQueue.length ? `Pendiente (${syncQueue.length})`
             : syncState === 'err' ? 'Sin conexión (local)'
-            : 'Drive conectado ✓';
+            : `SQL: ${sbUser.email.split('@')[0]} ✓`;
         });
+        if ($('sb-auth-form') && $('sb-user-box')) {
+          $('sb-auth-form').classList.toggle('hidden', loggedIn);
+          $('sb-user-box').classList.toggle('hidden', !loggedIn);
+          if (loggedIn) $('sb-user-email').textContent = sbUser.email || '';
+        }
       }
+
       function enqueueOp(op) {
-        if (!state.cfg || !state.cfg.url || !state.cfg.token) return;
+        if (!state.sbCfg || !state.sbCfg.url || !state.sbCfg.key) return;
         syncQueue.push(op);
         saveQueue();
         flushQueue();
       }
-      function putOp(t, r) { enqueueOp({ op: (t === 'goal' || t === 'gdef' || t === 'sub') ? 'putx' : 'put', t, r }); }
-      function delOp(t, id) { enqueueOp({ op: (t === 'goal' || t === 'gdef' || t === 'sub') ? 'delx' : 'del', t, id }); }
+      function putOp(t, r) { enqueueOp({ op: 'put', t, r }); }
+      function delOp(t, id) { enqueueOp({ op: 'del', t, id }); }
+      function putAcctOp(row) { enqueueOp({ op: 'put_acct', r: row }); }
+      function delAcctOp(nombre, tipo) { enqueueOp({ op: 'del_acct', nombre, tipo }); }
 
       async function flushQueue() {
-        if (!state.cfg || !state.cfg.url || !state.cfg.token) { updateSyncUI(); return; }
+        if (!sbClient || !sbUser) { updateSyncUI(); return; }
         if (flushing || !syncQueue.length) { updateSyncUI(); return; }
         flushing = true; syncState = 'syncing'; updateSyncUI();
         try {
-          const batch = syncQueue.slice(0, 100);
-          const res = await fetch(state.cfg.url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ token: state.cfg.token, ops: batch })
-          });
-          const j = await res.json();
-          if (!j || !j.ok) throw new Error('sync_error');
-          syncQueue = syncQueue.slice(batch.length);
-          saveQueue();
+          while (syncQueue.length) {
+            const item = syncQueue[0];
+            if (item.op === 'put') {
+              const tbl = TABLE_MAP[item.t];
+              if (tbl) {
+                const payload = { ...item.r, user_id: sbUser.id };
+                if (item.t === 'sub' && !payload.start) payload.start = today();
+                const { error } = await sbClient.from(tbl).upsert(payload, { onConflict: 'id' });
+                if (error) throw error;
+              }
+            } else if (item.op === 'del') {
+              const tbl = TABLE_MAP[item.t];
+              if (tbl) {
+                const { error } = await sbClient.from(tbl).delete().eq('id', item.id).eq('user_id', sbUser.id);
+                if (error) throw error;
+              }
+            } else if (item.op === 'put_acct') {
+              const payload = { ...item.r, user_id: sbUser.id };
+              const { error } = await sbClient.from('cuentas').upsert(payload, { onConflict: 'user_id,nombre,tipo' });
+              if (error) throw error;
+            } else if (item.op === 'del_acct') {
+              const { error } = await sbClient.from('cuentas').delete()
+                .eq('user_id', sbUser.id).eq('nombre', item.nombre).eq('tipo', item.tipo);
+              if (error) throw error;
+            }
+            syncQueue.shift();
+            saveQueue();
+          }
           flushing = false;
           syncState = 'ok';
-          if (syncQueue.length) return flushQueue();
           updateSyncUI();
         } catch (e) {
           flushing = false;
@@ -776,41 +862,162 @@
         }
       }
 
-      async function pullRemote() {
-        if (!state.cfg || !state.cfg.url || !state.cfg.token || syncQueue.length) return;
+      // Migra todo lo almacenado localmente a Supabase antes de descargar
+      async function migrateLocalToSupabase() {
+        if (!sbClient || !sbUser) return;
+        const uid = sbUser.id;
+        syncState = 'syncing'; updateSyncUI();
         try {
-          const res = await fetch(`${state.cfg.url}?action=list&token=${encodeURIComponent(state.cfg.token)}`);
-          const j = await res.json();
-          if (!j || !j.ok) return;
-          let added = 0;
-          [['rows', state.rows, j.rows], ['sav', state.sav, j.sav], ['goal', state.goal, j.goal], ['gdef', state.gdef, j.gdef]].forEach(([t, arr, remote]) => {
-            const have = new Set(arr.map((x) => x.id));
-            (remote || []).forEach((r) => {
-              if (!have.has(r.id) && (r.amt > 0 || t === 'gdef')) {
-                arr.push(r); have.add(r.id); added++;
-                if (t === 'rows' && r.acct && r.acct !== 'Efectivo') {
-                  if (r.pago === 'Crédito' && !state.cards[r.acct]) state.cards[r.acct] = { day: 15, limit: 0 };
-                  else if (r.pago !== 'Crédito' && !state.banks.includes(r.acct)) state.banks.push(r.acct);
-                }
-                if (t === 'sav' && r.cat && r.cat !== 'Efectivo' && !state.banks.includes(r.cat)) state.banks.push(r.cat);
-              }
+          const acctRows = [];
+          state.banks.forEach((b) => {
+            const R = state.rates[b] || { r1: 0, cap: 0, r2: 0 };
+            acctRows.push({
+              user_id: uid, nombre: b, tipo: 'debito',
+              dia_corte: 15, limite: 0,
+              tasa1: Number(R.r1 || 0), tope: Number(R.cap || 0), tasa2: Number(R.r2 || 0)
             });
           });
-          const haveSubs = new Set(state.subs.map((x) => x.id));
-          (j.subs || []).forEach((q) => {
-            if (q && q.name && q.amt > 0 && !haveSubs.has(q.id)) {
-              state.subs.push(q); haveSubs.add(q.id); added++;
-              if (q.card && (q.pago || 'Crédito') === 'Crédito' && !state.cards[q.card]) state.cards[q.card] = { day: 15, limit: 0 };
-              else if (q.card && q.card !== 'Efectivo' && !state.banks.includes(q.card)) state.banks.push(q.card);
+          Object.keys(state.cards).forEach((c) => {
+            const info = state.cards[c] || { day: 15, limit: 0 };
+            acctRows.push({
+              user_id: uid, nombre: c, tipo: 'credito',
+              dia_corte: Number(info.day || 15), limite: Number(info.limit || 0),
+              tasa1: 0, tope: 0, tasa2: 0
+            });
+          });
+          if (acctRows.length) {
+            const { error } = await sbClient.from('cuentas').upsert(acctRows, { onConflict: 'user_id,nombre,tipo' });
+            if (error) throw error;
+          }
+
+          const batches = [
+            ['movimientos', state.rows.map((r) => ({
+              id: r.id, user_id: uid, type: r.type, cat: r.cat, note: r.note || '',
+              date: r.date, amt: r.amt, acct: r.acct || 'Efectivo', pago: r.pago || ''
+            }))],
+            ['ahorros', state.sav.map((r) => ({
+              id: r.id, user_id: uid, type: r.type, cat: r.cat, note: r.note || '',
+              date: r.date, amt: r.amt
+            }))],
+            ['metas_def', state.gdef.map((r) => ({
+              id: r.id, user_id: uid, cat: r.cat, note: r.note || '🎯',
+              date: r.date || today(), amt: Number(r.amt || 0)
+            }))],
+            ['metas_movs', state.goal.map((r) => ({
+              id: r.id, user_id: uid, type: r.type, cat: r.cat, note: r.note || '',
+              date: r.date, amt: r.amt
+            }))],
+            ['suscripciones', state.subs.map((r) => ({
+              id: r.id, user_id: uid, name: r.name, amt: r.amt, day: r.day,
+              card: r.card, pago: r.pago || 'Crédito', start: r.start || today()
+            }))]
+          ];
+
+          for (const [tbl, list] of batches) {
+            if (list.length) {
+              const { error } = await sbClient.from(tbl).upsert(list, { onConflict: 'id' });
+              if (error) throw error;
+            }
+          }
+          syncState = 'ok'; updateSyncUI();
+        } catch (e) {
+          syncState = 'err'; updateSyncUI();
+        }
+      }
+
+      async function pullRemote(silent) {
+        if (!sbClient || !sbUser || syncQueue.length) return;
+        syncState = 'syncing'; updateSyncUI();
+        try {
+          const [rCtas, rMovs, rSav, rGdef, rGoal, rSubs] = await Promise.all([
+            sbClient.from('cuentas').select('*'),
+            sbClient.from('movimientos').select('*'),
+            sbClient.from('ahorros').select('*'),
+            sbClient.from('metas_def').select('*'),
+            sbClient.from('metas_movs').select('*'),
+            sbClient.from('suscripciones').select('*')
+          ]);
+          if (rCtas.error) throw rCtas.error;
+          if (rMovs.error) throw rMovs.error;
+          if (rSav.error) throw rSav.error;
+          if (rGdef.error) throw rGdef.error;
+          if (rGoal.error) throw rGoal.error;
+          if (rSubs.error) throw rSubs.error;
+
+          let added = 0;
+          (rCtas.data || []).forEach((c) => {
+            if (c.tipo === 'debito') {
+              if (!state.banks.includes(c.nombre)) { state.banks.push(c.nombre); added++; }
+              const r1 = Number(c.tasa1 || 0), cap = Number(c.tope || 0), r2v = Number(c.tasa2 || 0);
+              if (r1 > 0 || r2v > 0) state.rates[c.nombre] = { r1, cap, r2: r2v };
+            } else if (c.tipo === 'credito') {
+              if (!state.cards[c.nombre]) added++;
+              state.cards[c.nombre] = { day: Number(c.dia_corte || 15), limit: Number(c.limite || 0) };
             }
           });
+
+          const mergeById = (arr, remote, mapFn) => {
+            const have = new Set(arr.map((x) => x.id));
+            (remote || []).forEach((raw) => {
+              const r = mapFn(raw);
+              if (!have.has(r.id)) {
+                arr.push(r);
+                have.add(r.id);
+                added++;
+              }
+            });
+          };
+
+          mergeById(state.rows, rMovs.data, (r) => ({
+            id: Number(r.id), type: r.type, cat: r.cat, note: r.note || '',
+            date: r.date, amt: Number(r.amt), acct: r.acct || 'Efectivo', pago: r.pago || ''
+          }));
+          mergeById(state.sav, rSav.data, (r) => ({
+            id: Number(r.id), type: r.type, cat: r.cat, note: r.note || '',
+            date: r.date, amt: Number(r.amt)
+          }));
+          mergeById(state.gdef, rGdef.data, (r) => ({
+            id: Number(r.id), type: 'meta', cat: r.cat, note: r.note || '🎯',
+            date: r.date, amt: Number(r.amt || 0)
+          }));
+          mergeById(state.goal, rGoal.data, (r) => ({
+            id: Number(r.id), type: r.type, cat: r.cat, note: r.note || '',
+            date: r.date, amt: Number(r.amt)
+          }));
+          mergeById(state.subs, rSubs.data, (r) => ({
+            id: Number(r.id), name: r.name, amt: Number(r.amt), day: Number(r.day),
+            card: r.card, pago: r.pago || 'Crédito', start: r.start || ''
+          }));
+
           if (added) {
             runAutoSubscriptions();
             saveState(); renderAll();
-            toast(`${added} registros sincronizados`);
+            if (!silent) toast(`${added} registros sincronizados desde SQL`);
           }
           syncState = 'ok'; updateSyncUI();
-        } catch (e) { syncState = 'err'; updateSyncUI(); }
+        } catch (e) {
+          syncState = 'err'; updateSyncUI();
+        }
+      }
+
+      async function bootSupabaseSession() {
+        const client = initSupabaseClient();
+        if (!client) return;
+        try {
+          const { data } = await client.auth.getSession();
+          sbUser = data && data.session ? data.session.user : null;
+          updateSyncUI();
+          if (sbUser) {
+            await flushQueue();
+            await pullRemote(true);
+          }
+          client.auth.onAuthStateChange(async (_event, session) => {
+            sbUser = session ? session.user : null;
+            updateSyncUI();
+          });
+        } catch (e) {
+          syncState = 'err'; updateSyncUI();
+        }
       }
 
       // ===== Cálculos de Interés y Ciclos =====
@@ -918,7 +1125,7 @@
         $('toast-undo').classList.toggle('hidden', !onUndo);
         $('toast').classList.remove('hidden');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => { $('toast').classList.add('hidden'); undoFn = null; }, onUndo ? 4500 : 2500);
+        toastTimer = setTimeout(() => { $('toast').classList.add('hidden'); undoFn = null; }, onUndo ? 4500 : 2600);
       }
       $('toast-undo').onclick = () => { if (undoFn) undoFn(); $('toast').classList.add('hidden'); undoFn = null; };
 
@@ -947,7 +1154,7 @@
       document.addEventListener('click', () => { if (mobMenuOpen) setMobMenu(false); });
       document.querySelectorAll('.mob-menu-act').forEach((b) => b.addEventListener('click', () => setMobMenu(false)));
 
-      // ===== Keyboard Shortcuts (Desktop UX) =====
+      // ===== Keyboard Shortcuts =====
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           if (mobMenuOpen) setMobMenu(false);
@@ -955,7 +1162,6 @@
         } else if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') {
           if (!$('tx-modal').classList.contains('hidden')) { e.preventDefault(); $('tx-save').click(); }
           else if (!$('acct-modal').classList.contains('hidden')) { e.preventDefault(); $('acct-m-save').click(); }
-          else if (!$('sync-modal').classList.contains('hidden')) { e.preventDefault(); $('sync-save').click(); }
         }
       });
 
@@ -970,7 +1176,7 @@
       window.addEventListener('scroll', updateScrollTopBtn, { passive: true });
       $('scroll-top-btn').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // ===== Navigation & Touch Swipe Between Views =====
+      // ===== Navigation & Touch Swipe =====
       const VIEW_ORDER = ['balance', 'historial', 'ahorros'];
       const VIEW_META = {
         balance: { title: 'Resumen', sub: 'Balance mensual, tarjetas y suscripciones' },
@@ -998,7 +1204,6 @@
       document.querySelectorAll('.nav-btn, .mob-tab').forEach((b) => { b.onclick = () => switchView(b.getAttribute('data-view')); });
       document.querySelectorAll('[data-nav-jump]').forEach((b) => { b.onclick = () => switchView(b.getAttribute('data-nav-jump')); });
 
-      // Gesto deslizable horizontal para navegar entre vistas en móvil
       (function setupMobileSwipe() {
         const area = $('main-swipe-area');
         let sx = 0, sy = 0, dx = 0, tracking = false, locked = false;
@@ -1192,7 +1397,6 @@
 
         renderAnalytics();
 
-        // Credit Cards
         const cl = $('cards-list'); cl.innerHTML = '';
         if (!cKeys.length) {
           cl.innerHTML = '<div class="py-6 text-center text-xs text-[var(--muted-foreground)]">Sin tarjetas de crédito. Toca "+ Tarjeta" para agregar.</div>';
@@ -1228,14 +1432,18 @@
               if (!confirm(`¿Seguro que quieres eliminar la tarjeta "${k}"? Tus movimientos se conservan.`)) return;
               const prev = state.cards[k];
               delete state.cards[k];
-              saveState(); renderAll();
-              toast(`Tarjeta "${k}" eliminada`, () => { state.cards[k] = prev; saveState(); renderAll(); });
+              saveState(); delAcctOp(k, 'credito'); renderAll();
+              toast(`Tarjeta "${k}" eliminada`, () => {
+                state.cards[k] = prev;
+                saveState();
+                putAcctOp({ nombre: k, tipo: 'credito', dia_corte: prev.day, limite: prev.limit || 0, tasa1: 0, tope: 0, tasa2: 0 });
+                renderAll();
+              });
             };
             cl.appendChild(row);
           });
         }
 
-        // Suscripciones
         const sl = $('subs-list'); sl.innerHTML = '';
         const subTot = state.subs.reduce((s, q) => s + q.amt, 0);
         $('subs-meta').textContent = state.subs.length ? `${fm(subTot)}/mes · Categoría Suscripciones` : 'Categoría Suscripciones';
@@ -1318,17 +1526,19 @@
             const prevRate = state.rates[a];
             state.banks = state.banks.filter((b) => b !== a);
             delete state.rates[a];
-            saveState(); renderAll();
+            saveState(); delAcctOp(a, 'debito'); renderAll();
             toast(`Cuenta "${a}" eliminada`, () => {
               state.banks = prevBanks;
               if (prevRate) state.rates[a] = prevRate;
-              saveState(); renderAll();
+              saveState();
+              const rObj = prevRate || { r1: 0, cap: 0, r2: 0 };
+              putAcctOp({ nombre: a, tipo: 'debito', dia_corte: 15, limite: 0, tasa1: rObj.r1, tope: rObj.cap, tasa2: rObj.r2 });
+              renderAll();
             });
           };
           grid.appendChild(card);
         });
 
-        // Metas
         const gl = $('goals-list'); gl.innerHTML = '';
         if (!state.gdef.length) {
           gl.innerHTML = '<div class="col-span-full py-6 text-center text-xs text-[var(--muted-foreground)]">Sin metas aún. Crea una meta para viajes o proyectos.</div>';
@@ -1559,14 +1769,8 @@
         }
         renderUnifiedHistory();
       };
-      $('f-more-btn').onclick = () => {
-        movShown += movStep;
-        renderUnifiedHistory();
-      };
-      $('f-all-btn').onclick = () => {
-        movShown = Infinity;
-        renderUnifiedHistory();
-      };
+      $('f-more-btn').onclick = () => { movShown += movStep; renderUnifiedHistory(); };
+      $('f-all-btn').onclick = () => { movShown = Infinity; renderUnifiedHistory(); };
 
       $('f-toggle').onclick = () => { fState.open = !fState.open; renderUnifiedHistory(); };
       $('f-search').oninput = (e) => { fState.q = e.target.value; movShown = movStep; renderUnifiedHistory(); };
@@ -1641,7 +1845,6 @@
             <div><div class="text-xs text-[var(--muted-foreground)]">Intereses</div><div class="text-sm sm:text-base font-bold tabular-nums" style="color:var(--success);">+${fm(c.t.int)}</div></div>
           </div>
 
-          <!-- Vista Móvil (Tarjetas compactas) -->
           <div class="sm:hidden divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] px-3">
             ${c.accounts.map((a) => `
               <div class="py-2.5 flex items-center justify-between gap-2 text-xs">
@@ -1654,7 +1857,6 @@
             `).join('')}
           </div>
 
-          <!-- Vista Escritorio (Tabla multi-columna) -->
           <div class="hidden sm:block overflow-x-auto rounded-xl border border-[var(--border)]">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
@@ -1905,10 +2107,13 @@
           const prevBanks = state.banks.slice(), prevRate = state.rates[editName];
           state.banks = state.banks.filter((b) => b !== editName);
           delete state.rates[editName];
-          saveState(); $('acct-modal').classList.add('hidden'); renderAll();
+          saveState(); delAcctOp(editName, 'debito'); $('acct-modal').classList.add('hidden'); renderAll();
           toast(`Cuenta "${editName}" eliminada`, () => {
             state.banks = prevBanks; if (prevRate) state.rates[editName] = prevRate;
-            saveState(); renderAll();
+            saveState();
+            const rObj = prevRate || { r1: 0, cap: 0, r2: 0 };
+            putAcctOp({ nombre: editName, tipo: 'debito', dia_corte: 15, limite: 0, tasa1: rObj.r1, tope: rObj.cap, tasa2: rObj.r2 });
+            renderAll();
           });
         } : null;
         onAcctSave = () => {
@@ -1918,7 +2123,9 @@
           const r1 = parseFloat($('am-r1').value) || 0, cap = parseFloat($('am-cap').value) || 0, r2v = parseFloat($('am-r2').value) || 0;
           if (!isEdit) state.banks.push(nm);
           if (r1 > 0 || r2v > 0) state.rates[nm] = { r1, cap, r2: r2v }; else delete state.rates[nm];
-          saveState(); $('acct-modal').classList.add('hidden'); renderAll(); toast(isEdit ? 'Cuenta actualizada' : 'Cuenta agregada');
+          saveState();
+          putAcctOp({ nombre: nm, tipo: 'debito', dia_corte: 15, limite: 0, tasa1: r1, tope: cap, tasa2: r2v });
+          $('acct-modal').classList.add('hidden'); renderAll(); toast(isEdit ? 'Cuenta actualizada' : 'Cuenta agregada');
         };
         $('acct-modal').classList.remove('hidden');
         setTimeout(() => $(isEdit ? 'am-r1' : 'am-name').focus(), 60);
@@ -1938,16 +2145,23 @@
           if (!confirm(`¿Seguro que quieres eliminar la tarjeta "${editName}"? Tus movimientos se conservan.`)) return;
           const prev = state.cards[editName];
           delete state.cards[editName];
-          saveState(); $('acct-modal').classList.add('hidden'); renderAll();
-          toast(`Tarjeta "${editName}" eliminada`, () => { state.cards[editName] = prev; saveState(); renderAll(); });
+          saveState(); delAcctOp(editName, 'credito'); $('acct-modal').classList.add('hidden'); renderAll();
+          toast(`Tarjeta "${editName}" eliminada`, () => {
+            state.cards[editName] = prev; saveState();
+            putAcctOp({ nombre: editName, tipo: 'credito', dia_corte: prev.day, limite: prev.limit || 0, tasa1: 0, tope: 0, tasa2: 0 });
+            renderAll();
+          });
         } : null;
         onAcctSave = () => {
           const nm = isEdit ? editName : ($('cm-name').value.trim());
           const dy = parseInt($('cm-day').value, 10), lim = parseFloat($('cm-lim').value) || 0;
           if (!nm) return toast('Escribe el nombre');
           if (!(dy >= 1 && dy <= 31)) return toast('Día entre 1 y 31');
-          state.cards[nm] = { day: dy, limit: Math.max(0, r2(lim)) };
-          saveState(); $('acct-modal').classList.add('hidden'); renderAll(); toast(isEdit ? 'Tarjeta actualizada' : 'Tarjeta agregada');
+          const cleanLim = Math.max(0, r2(lim));
+          state.cards[nm] = { day: dy, limit: cleanLim };
+          saveState();
+          putAcctOp({ nombre: nm, tipo: 'credito', dia_corte: dy, limite: cleanLim, tasa1: 0, tope: 0, tasa2: 0 });
+          $('acct-modal').classList.add('hidden'); renderAll(); toast(isEdit ? 'Tarjeta actualizada' : 'Tarjeta agregada');
         };
         $('acct-modal').classList.remove('hidden');
         setTimeout(() => $(isEdit ? 'cm-day' : 'cm-name').focus(), 60);
@@ -2000,38 +2214,94 @@
       $('acct-m-save').onclick = () => { if (onAcctSave) onAcctSave(); };
       $('acct-m-del').onclick = () => { if (onAcctDel) onAcctDel(); };
 
-      // ===== Sync Handlers =====
+      // ===== Supabase Handlers =====
       document.querySelectorAll('[data-open-sync]').forEach((b) => {
-        b.onclick = () => { $('sync-url').value = (state.cfg && state.cfg.url) || ''; $('sync-token').value = (state.cfg && state.cfg.token) || ''; $('sync-modal').classList.remove('hidden'); };
+        b.onclick = () => {
+          $('sb-url').value = (state.sbCfg && state.sbCfg.url) || '';
+          $('sb-key').value = (state.sbCfg && state.sbCfg.key) || '';
+          updateSyncUI();
+          $('sync-modal').classList.remove('hidden');
+        };
       });
       $('sync-close').onclick = () => $('sync-modal').classList.add('hidden');
       $('sync-modal').onclick = (e) => { if (e.target === $('sync-modal')) $('sync-modal').classList.add('hidden'); };
-      $('sync-save').onclick = () => {
-        const u = $('sync-url').value.trim(), t = $('sync-token').value.trim();
-        state.cfg = { url: u, token: t };
-        saveState(); $('sync-modal').classList.add('hidden');
-        if (!u || !t) { syncState = 'idle'; updateSyncUI(); return toast('Modo local activo'); }
-        const queuedKeys = new Set(syncQueue.filter((o) => o.r).map((o) => o.t + o.r.id));
-        [['rows', state.rows], ['sav', state.sav], ['goal', state.goal], ['gdef', state.gdef], ['sub', state.subs]].forEach(([tb, arr]) => {
-          arr.forEach((r) => {
-            if (!queuedKeys.has(tb + r.id)) {
-              syncQueue.push({ op: (tb === 'goal' || tb === 'gdef' || tb === 'sub') ? 'putx' : 'put', t: tb, r });
-            }
-          });
-        });
-        saveQueue();
-        toast('Conectando con Drive…');
-        flushQueue().then(pullRemote);
-      };
-      $('sync-clear').onclick = () => {
-        state.cfg = { url: '', token: '' };
-        syncQueue = []; saveQueue(); saveState();
-        syncState = 'idle'; updateSyncUI();
-        $('sync-modal').classList.add('hidden');
-        toast('Desconectado');
+
+      $('sb-save-cfg').onclick = async () => {
+        const u = $('sb-url').value.trim();
+        const k = $('sb-key').value.trim();
+        if (!u || !k) {
+          state.sbCfg = { url: '', key: '' };
+          sbClient = null; sbUser = null;
+          saveState(); updateSyncUI();
+          return toast('Modo local activo');
+        }
+        state.sbCfg = { url: u, key: k };
+        saveState();
+        initSupabaseClient();
+        toast('Proyecto guardado. Inicia sesión abajo.');
       };
 
-      window.addEventListener('online', () => { flushQueue().then(pullRemote); });
+      $('sb-signup-btn').onclick = async () => {
+        if (!sbClient) {
+          $('sb-save-cfg').click();
+          if (!sbClient) return toast('Primero pega tu URL y Publishable key');
+        }
+        const email = $('sb-email').value.trim();
+        const password = $('sb-pass').value;
+        if (!email || password.length < 6) return toast('Ingresa correo y contraseña (mín. 6 caracteres)');
+        toast('Creando cuenta…');
+        const { data, error } = await sbClient.auth.signUp({ email, password });
+        if (error) return toast(error.message || 'Error al registrar');
+        if (data && data.session) {
+          sbUser = data.session.user;
+          updateSyncUI();
+          await migrateLocalToSupabase();
+          await pullRemote(false);
+          $('sync-modal').classList.add('hidden');
+          toast('Cuenta creada y datos migrados ✓');
+        } else {
+          toast('Cuenta creada. Revisa tu correo o inicia sesión.');
+        }
+      };
+
+      $('sb-signin-btn').onclick = async () => {
+        if (!sbClient) {
+          $('sb-save-cfg').click();
+          if (!sbClient) return toast('Primero pega tu URL y Publishable key');
+        }
+        const email = $('sb-email').value.trim();
+        const password = $('sb-pass').value;
+        if (!email || !password) return toast('Escribe tu correo y contraseña');
+        toast('Iniciando sesión…');
+        const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+        if (error) return toast(error.message || 'Credenciales incorrectas');
+        sbUser = data.user;
+        updateSyncUI();
+        await migrateLocalToSupabase();
+        await flushQueue();
+        await pullRemote(false);
+        $('sync-modal').classList.add('hidden');
+        toast('Conectado a PostgreSQL ✓');
+      };
+
+      $('sb-sync-now').onclick = async () => {
+        if (!sbClient || !sbUser) return;
+        toast('Sincronizando…');
+        await migrateLocalToSupabase();
+        await flushQueue();
+        await pullRemote(false);
+        toast('Sincronización completada ✓');
+      };
+
+      $('sb-signout-btn').onclick = async () => {
+        if (sbClient) await sbClient.auth.signOut();
+        sbUser = null;
+        syncQueue = []; saveQueue();
+        syncState = 'idle'; updateSyncUI();
+        toast('Sesión cerrada (datos locales conservados)');
+      };
+
+      window.addEventListener('online', () => { flushQueue().then(() => pullRemote(true)); });
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           if (runAutoSubscriptions()) renderAll();
@@ -2054,7 +2324,7 @@
       applyTheme(themeMode);
       runAutoSubscriptions();
       switchView('balance');
-      flushQueue().then(pullRemote);
+      bootSupabaseSession();
     })();
   </script>
 </body>

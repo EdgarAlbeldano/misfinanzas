@@ -856,14 +856,6 @@
           <span class="soft-success px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex-none">Activa ✓</span>
         </div>
 
-        <div class="space-y-1.5">
-          <label for="sb-name-edit" class="block text-xs font-semibold">Tu nombre</label>
-          <div class="flex gap-2">
-            <input id="sb-name-edit" type="text" autocomplete="name" maxlength="40" placeholder="¿Cómo te llamas?" class="input-field h-11 sm:h-10 px-3.5 text-sm sm:text-xs flex-1 min-w-0" />
-            <button id="sb-name-save" type="button" class="tap-scale h-11 sm:h-10 px-4 rounded-xl bg-[var(--content)] border border-[var(--border)] text-xs font-semibold hover:border-[var(--primary)] cursor-pointer flex-none">Guardar</button>
-          </div>
-        </div>
-
         <div class="px-3.5 py-2.5 rounded-xl bg-[var(--content)]/60 border border-[var(--border)] flex items-center justify-between text-xs">
           <span class="text-[var(--muted-foreground)]">Estado de la nube</span>
           <span class="font-semibold flex items-center gap-1.5">
@@ -1226,9 +1218,6 @@
         });
         if ($('sb-user-email')) {
           $('sb-user-email').textContent = email;
-        }
-        if ($('sb-name-edit') && document.activeElement !== $('sb-name-edit')) {
-          $('sb-name-edit').value = getUserName();
         }
         if ($('sidebar-logged-actions') && $('sidebar-login-btn')) {
           $('sidebar-logged-actions').classList.toggle('hidden', !loggedIn);
@@ -2961,24 +2950,6 @@
       }
 
       $('sb-sync-now').onclick = triggerManualSync;
-
-      $('sb-name-save').onclick = async () => {
-        const n = cleanName($('sb-name-edit').value);
-        if (!n) return toast('Escribe tu nombre');
-        setUserName(n);
-        if (sbClient && sbUser) {
-          try {
-            const { data, error } = await sbClient.auth.updateUser({ data: { name: n } });
-            if (error) throw error;
-            if (data?.user) sbUser = data.user;
-          } catch (e) {
-            renderAll();
-            return toast('Nombre guardado aquí; no se pudo actualizar en la nube');
-          }
-        }
-        renderAll();
-        toast('Nombre actualizado ✓');
-      };
       if ($('sidebar-sync-btn')) $('sidebar-sync-btn').onclick = triggerManualSync;
 
       async function handleSignOut() {

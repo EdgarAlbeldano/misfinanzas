@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Mis Finanzas" />
-  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="icon-192.png" />
   <title>Mis Finanzas</title>
@@ -119,6 +119,7 @@
       --chart-6: #0891b2;
     }
 
+    .hidden { display: none !important; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
       overflow-x: hidden;
@@ -181,15 +182,15 @@
         </div>
 
         <nav class="px-3 space-y-1" aria-label="Navegación principal">
-          <button data-view="balance" class="nav-btn w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer">
+          <button type="button" data-view="balance" class="nav-btn w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer">
             <svg class="w-4 h-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
             <span>Resumen</span>
           </button>
-          <button data-view="historial" class="nav-btn w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer">
+          <button type="button" data-view="historial" class="nav-btn w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer">
             <svg class="w-4 h-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <span>Movimientos</span>
           </button>
-          <button data-view="ahorros" class="nav-btn w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer">
+          <button type="button" data-view="ahorros" class="nav-btn w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer">
             <svg class="w-4 h-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/></svg>
             <span>Cuentas</span>
           </button>
@@ -464,15 +465,15 @@
 
   <!-- MOBILE BOTTOM BAR -->
   <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] grid grid-cols-3 gap-1" aria-label="Navegación móvil">
-    <button data-view="balance" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
+    <button type="button" data-view="balance" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
       <span>Resumen</span>
     </button>
-    <button data-view="historial" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
+    <button type="button" data-view="historial" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
       <span>Movimientos</span>
     </button>
-    <button data-view="ahorros" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
+    <button type="button" data-view="ahorros" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/></svg>
       <span>Cuentas</span>
     </button>
@@ -624,9 +625,8 @@
       // =========================================================================
       // CONFIGURACIÓN DE SUPABASE (PEGA AQUÍ TU PROJECT URL Y PUBLISHABLE KEY)
       // =========================================================================
-      const SUPABASE_URL = 'https://ilgngewexuanqozoftkr.supabase.co/rest/v1/
-';
-      const SUPABASE_KEY = 'sb_publishable_XA1HVCTJLK0yo1p19OdA8g_BcweuPR8';
+      const SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_XA1HVCTJLK0yo1p190dA8g_Bcweu...';
       // =========================================================================
 
       const $ = (id) => document.getElementById(id);
@@ -685,18 +685,18 @@
         try {
           legacy = JSON.parse(localStorage.getItem('mf_genui_state_v3') || 'null');
         } catch (e) {}
-        if (legacy && Array.isArray(legacy.rows)) {
+        if (legacy && typeof legacy === 'object') {
           return {
             banks: Array.isArray(legacy.banks) ? legacy.banks : [],
-            cards: legacy.cards || {},
-            rates: legacy.rates || {},
+            cards: legacy.cards && typeof legacy.cards === 'object' ? legacy.cards : {},
+            rates: legacy.rates && typeof legacy.rates === 'object' ? legacy.rates : {},
             subs: Array.isArray(legacy.subs) ? legacy.subs : [],
             skips: Array.isArray(legacy.skips) ? legacy.skips : [],
             gdef: Array.isArray(legacy.gdef) ? legacy.gdef : [],
             goal: Array.isArray(legacy.goal) ? legacy.goal : [],
             sav: Array.isArray(legacy.sav) ? legacy.sav : [],
             rows: Array.isArray(legacy.rows) ? legacy.rows : [],
-            cuts: legacy.cuts || {}
+            cuts: legacy.cuts && typeof legacy.cuts === 'object' ? legacy.cuts : {}
           };
         }
         return {
@@ -717,11 +717,19 @@
       const Q_KEY = 'mf_sb_queue_v1';
       let state = null;
       try { state = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) {}
-      if (!state || !Array.isArray(state.rows)) {
+      if (!state || typeof state !== 'object' || !Array.isArray(state.rows)) {
         state = createInitialState();
         try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
       }
+      if (!Array.isArray(state.banks)) state.banks = [];
+      if (!state.cards || typeof state.cards !== 'object') state.cards = {};
+      if (!state.rates || typeof state.rates !== 'object') state.rates = {};
+      if (!Array.isArray(state.subs)) state.subs = [];
       if (!Array.isArray(state.skips)) state.skips = [];
+      if (!Array.isArray(state.gdef)) state.gdef = [];
+      if (!Array.isArray(state.goal)) state.goal = [];
+      if (!Array.isArray(state.sav)) state.sav = [];
+      if (!state.cuts || typeof state.cuts !== 'object') state.cuts = {};
       const saveState = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} };
 
       let hideAmounts = false;
@@ -754,7 +762,9 @@
 
       // ===== Supabase Client + Cola Offline =====
       const hasValidConfig = SUPABASE_URL.startsWith('http') && !SUPABASE_URL.includes('TU-PROYECTO') && SUPABASE_KEY.length > 20;
-      const sbClient = (hasValidConfig && window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+      const sbClient = (hasValidConfig && window.supabase && typeof window.supabase.createClient === 'function')
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+        : null;
       let sbUser = null;
       let syncQueue = [];
       let syncState = 'idle';
@@ -2210,7 +2220,7 @@
       $('sync-modal').onclick = (e) => { if (e.target === $('sync-modal')) $('sync-modal').classList.add('hidden'); };
 
       $('sb-signup-btn').onclick = async () => {
-        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en el archivo');
+        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html');
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
         if (!email || password.length < 6) return toast('Ingresa correo y contraseña (mín. 6 caracteres)');
@@ -2230,7 +2240,7 @@
       };
 
       $('sb-signin-btn').onclick = async () => {
-        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en el archivo');
+        if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html');
         const email = $('sb-email').value.trim();
         const password = $('sb-pass').value;
         if (!email || !password) return toast('Escribe tu correo y contraseña');

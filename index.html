@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="theme-color" content="#f4f5f7" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -19,6 +18,7 @@
   <style>
     :root {
       color-scheme: light;
+      --vvh: 100dvh;
       --background: #f4f5f7;
       --foreground: #111827;
       --card: #ffffff;
@@ -126,6 +126,18 @@
       overflow-x: hidden;
       max-width: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    input, select, textarea {
+      scroll-margin-top: 24px;
+      scroll-margin-bottom: 140px;
+    }
+
+    .modal-backdrop {
+      transition: padding-bottom 0.16s ease-out;
+    }
+    .modal-backdrop > .animate-sheet {
+      max-height: min(90dvh, calc(var(--vvh, 100dvh) - 1rem));
     }
 
     @media (max-width: 640px) {
@@ -626,8 +638,8 @@
       // =========================================================================
       // CONFIGURACIÓN DE SUPABASE (PEGA AQUÍ TU PROJECT URL Y PUBLISHABLE KEY)
       // =========================================================================
-      const SUPABASE_URL = 'https://ilgngewexuanqozoftkr.supabase.co/rest/v1/';
-      const SUPABASE_KEY = 'sb_publishable_XA1HVCTJLK0yo1p19OdA8g_BcweuPR8';
+      const SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_XA1HVCTJLK0yo1p190dA8g_Bcweu...';
       // =========================================================================
 
       const $ = (id) => document.getElementById(id);
@@ -646,6 +658,55 @@
       const monthLabel = (ym) => { const [y, m] = ym.split('-').map(Number); const r = new Date(y, m - 1, 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }); return r.charAt(0).toUpperCase() + r.slice(1); };
       const fmt = (n) => Number(n || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
       const r2 = (x) => Math.round(x * 100) / 100;
+
+      // ===== Ajuste Universal de Teclado Virtual (iOS Safari + Android Chrome + Todos los Modales) =====
+      const isEditableField = (el) => !!el && ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName) && !['checkbox', 'radio', 'button', 'submit'].includes((el.type || '').toLowerCase());
+
+      function syncVirtualKeyboardLayout(shouldScrollActive) {
+        const vv = window.visualViewport;
+        const vvh = vv ? vv.height : window.innerHeight;
+        const offsetTop = vv ? vv.offsetTop : 0;
+        const kbHeight = vv ? Math.max(0, Math.round(window.innerHeight - vvh - offsetTop)) : 0;
+        const kbOpen = kbHeight > 90;
+
+        document.documentElement.style.setProperty('--vvh', `${Math.round(vvh)}px`);
+
+        document.querySelectorAll('.modal-backdrop').forEach((modal) => {
+          modal.style.paddingBottom = kbOpen ? `${kbHeight}px` : '';
+        });
+
+        const mainArea = $('main-swipe-area');
+        if (mainArea) {
+          const anyModalVisible = Array.from(document.querySelectorAll('.modal-backdrop')).some((m) => !m.classList.contains('hidden'));
+          mainArea.style.paddingBottom = (kbOpen && !anyModalVisible) ? `${kbHeight + 24}px` : '';
+        }
+
+        if (shouldScrollActive && isEditableField(document.activeElement)) {
+          try {
+            document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+          } catch (e) {}
+        }
+      }
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => syncVirtualKeyboardLayout(true));
+        window.visualViewport.addEventListener('scroll', () => syncVirtualKeyboardLayout(false));
+      }
+
+      document.addEventListener('focusin', (e) => {
+        if (!isEditableField(e.target)) return;
+        syncVirtualKeyboardLayout(true);
+        setTimeout(() => syncVirtualKeyboardLayout(true), 120);
+        setTimeout(() => syncVirtualKeyboardLayout(true), 320);
+      });
+
+      document.addEventListener('focusout', () => {
+        setTimeout(() => {
+          if (!isEditableField(document.activeElement)) {
+            syncVirtualKeyboardLayout(false);
+          }
+        }, 120);
+      });
 
       // ===== Tema (Auto / Claro / Oscuro) =====
       const THEME_KEY = 'mf_theme_v1';
@@ -1153,6 +1214,7 @@
         if (e.key === 'Escape') {
           if (mobMenuOpen) setMobMenu(false);
           ['tx-modal', 'cut-modal', 'acct-modal', 'sync-modal'].forEach((id) => $(id).classList.add('hidden'));
+          syncVirtualKeyboardLayout(false);
         } else if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') {
           if (!$('tx-modal').classList.contains('hidden')) { e.preventDefault(); $('tx-save').click(); }
           else if (!$('acct-modal').classList.contains('hidden')) { e.preventDefault(); $('acct-m-save').click(); }
@@ -1881,12 +1943,13 @@
         `;
       }
 
+      const closeCutModal = () => { $('cut-modal').classList.add('hidden'); syncVirtualKeyboardLayout(false); };
       document.querySelectorAll('[data-open-cut]').forEach((b) => {
-        b.onclick = () => { renderCutModal(); $('cut-modal').classList.remove('hidden'); };
+        b.onclick = () => { renderCutModal(); $('cut-modal').classList.remove('hidden'); syncVirtualKeyboardLayout(false); };
       });
-      $('cut-close').onclick = () => $('cut-modal').classList.add('hidden');
-      $('cut-cancel').onclick = () => $('cut-modal').classList.add('hidden');
-      $('cut-modal').onclick = (e) => { if (e.target === $('cut-modal')) $('cut-modal').classList.add('hidden'); };
+      $('cut-close').onclick = closeCutModal;
+      $('cut-cancel').onclick = closeCutModal;
+      $('cut-modal').onclick = (e) => { if (e.target === $('cut-modal')) closeCutModal(); };
 
       $('cut-export').onclick = () => {
         const c = buildCut(cutMonth);
@@ -2041,9 +2104,10 @@
         $('tx-date').value = today(); $('tx-date').max = today();
         renderTxChips();
         $('tx-modal').classList.remove('hidden');
+        syncVirtualKeyboardLayout(false);
         setTimeout(() => $(t === 'ngoal' || isSubShortcut ? 'tx-note' : 'tx-amt').focus(), 60);
       }
-      const closeTxModal = () => $('tx-modal').classList.add('hidden');
+      const closeTxModal = () => { $('tx-modal').classList.add('hidden'); syncVirtualKeyboardLayout(false); };
       $('tx-close').onclick = closeTxModal; $('tx-cancel').onclick = closeTxModal;
       $('tx-modal').onclick = (e) => { if (e.target === $('tx-modal')) closeTxModal(); };
       document.querySelectorAll('[data-open-tx]').forEach((b) => { b.onclick = () => openTxModal(b.getAttribute('data-open-tx')); });
@@ -2083,6 +2147,7 @@
       };
 
       // ===== Integrated Account / Rate / Credit Card / Subscription Modal =====
+      const closeAcctModal = () => { $('acct-modal').classList.add('hidden'); syncVirtualKeyboardLayout(false); };
       let onAcctSave = null, onAcctDel = null;
       function openBankModal(editName) {
         const isEdit = !!editName;
@@ -2102,7 +2167,7 @@
           const prevBanks = state.banks.slice(), prevRate = state.rates[editName];
           state.banks = state.banks.filter((b) => b !== editName);
           delete state.rates[editName];
-          saveState(); delAcctOp(editName, 'debito'); $('acct-modal').classList.add('hidden'); renderAll();
+          saveState(); delAcctOp(editName, 'debito'); closeAcctModal(); renderAll();
           toast(`Cuenta "${editName}" eliminada`, () => {
             state.banks = prevBanks; if (prevRate) state.rates[editName] = prevRate;
             saveState();
@@ -2120,9 +2185,10 @@
           if (r1 > 0 || r2v > 0) state.rates[nm] = { r1, cap, r2: r2v }; else delete state.rates[nm];
           saveState();
           putAcctOp({ nombre: nm, tipo: 'debito', dia_corte: 15, limite: 0, tasa1: r1, tope: cap, tasa2: r2v });
-          $('acct-modal').classList.add('hidden'); renderAll(); toast(isEdit ? 'Cuenta actualizada' : 'Cuenta agregada');
+          closeAcctModal(); renderAll(); toast(isEdit ? 'Cuenta actualizada' : 'Cuenta agregada');
         };
         $('acct-modal').classList.remove('hidden');
+        syncVirtualKeyboardLayout(false);
         setTimeout(() => $(isEdit ? 'am-r1' : 'am-name').focus(), 60);
       }
 
@@ -2140,7 +2206,7 @@
           if (!confirm(`¿Seguro que quieres eliminar la tarjeta "${editName}"? Tus movimientos se conservan.`)) return;
           const prev = state.cards[editName];
           delete state.cards[editName];
-          saveState(); delAcctOp(editName, 'credito'); $('acct-modal').classList.add('hidden'); renderAll();
+          saveState(); delAcctOp(editName, 'credito'); closeAcctModal(); renderAll();
           toast(`Tarjeta "${editName}" eliminada`, () => {
             state.cards[editName] = prev; saveState();
             putAcctOp({ nombre: editName, tipo: 'credito', dia_corte: prev.day, limite: prev.limit || 0, tasa1: 0, tope: 0, tasa2: 0 });
@@ -2156,9 +2222,10 @@
           state.cards[nm] = { day: dy, limit: cleanLim };
           saveState();
           putAcctOp({ nombre: nm, tipo: 'credito', dia_corte: dy, limite: cleanLim, tasa1: 0, tope: 0, tasa2: 0 });
-          $('acct-modal').classList.add('hidden'); renderAll(); toast(isEdit ? 'Tarjeta actualizada' : 'Tarjeta agregada');
+          closeAcctModal(); renderAll(); toast(isEdit ? 'Tarjeta actualizada' : 'Tarjeta agregada');
         };
         $('acct-modal').classList.remove('hidden');
+        syncVirtualKeyboardLayout(false);
         setTimeout(() => $(isEdit ? 'cm-day' : 'cm-name').focus(), 60);
       }
 
@@ -2185,7 +2252,7 @@
         onAcctDel = () => {
           if (!confirm(`¿Seguro que quieres eliminar la suscripción "${sub.name}"?`)) return;
           state.subs = state.subs.filter((s) => s.id !== subId);
-          saveState(); delOp('sub', subId); $('acct-modal').classList.add('hidden'); renderAll();
+          saveState(); delOp('sub', subId); closeAcctModal(); renderAll();
           toast(`Suscripción "${sub.name}" eliminada`, () => { state.subs.push(sub); saveState(); putOp('sub', sub); renderAll(); });
         };
         onAcctSave = () => {
@@ -2195,30 +2262,33 @@
           if (!(amt > 0)) return toast('Monto inválido');
           if (!(dy >= 1 && dy <= 31)) return toast('Día entre 1 y 31');
           sub.name = nm; sub.amt = r2(amt); sub.day = dy; sub.card = card; sub.pago = pago;
-          saveState(); putOp('sub', sub); $('acct-modal').classList.add('hidden'); renderAll(); toast('Suscripción actualizada');
+          saveState(); putOp('sub', sub); closeAcctModal(); renderAll(); toast('Suscripción actualizada');
         };
         $('acct-modal').classList.remove('hidden');
+        syncVirtualKeyboardLayout(false);
         setTimeout(() => $('sm-name').focus(), 60);
       }
 
       $('btn-add-bank').onclick = () => openBankModal(null);
       $('btn-add-card').onclick = () => openCardModal(null);
-      $('acct-m-close').onclick = () => $('acct-modal').classList.add('hidden');
-      $('acct-m-cancel').onclick = () => $('acct-modal').classList.add('hidden');
-      $('acct-modal').onclick = (e) => { if (e.target === $('acct-modal')) $('acct-modal').classList.add('hidden'); };
+      $('acct-m-close').onclick = closeAcctModal;
+      $('acct-m-cancel').onclick = closeAcctModal;
+      $('acct-modal').onclick = (e) => { if (e.target === $('acct-modal')) closeAcctModal(); };
       $('acct-m-save').onclick = () => { if (onAcctSave) onAcctSave(); };
       $('acct-m-del').onclick = () => { if (onAcctDel) onAcctDel(); };
 
       // ===== Auth & Sync Modal Handlers =====
+      const closeSyncModal = () => { $('sync-modal').classList.add('hidden'); syncVirtualKeyboardLayout(false); };
       document.querySelectorAll('[data-open-sync]').forEach((b) => {
         b.onclick = () => {
           updateSyncUI();
           $('sync-modal').classList.remove('hidden');
+          syncVirtualKeyboardLayout(false);
           if (!sbUser) setTimeout(() => $('sb-email').focus(), 60);
         };
       });
-      $('sync-close').onclick = () => $('sync-modal').classList.add('hidden');
-      $('sync-modal').onclick = (e) => { if (e.target === $('sync-modal')) $('sync-modal').classList.add('hidden'); };
+      $('sync-close').onclick = closeSyncModal;
+      $('sync-modal').onclick = (e) => { if (e.target === $('sync-modal')) closeSyncModal(); };
 
       $('sb-signup-btn').onclick = async () => {
         if (!sbClient) return toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html');
@@ -2233,7 +2303,7 @@
           updateSyncUI();
           await migrateLocalToSupabase();
           await pullRemote(false);
-          $('sync-modal').classList.add('hidden');
+          closeSyncModal();
           toast('Cuenta creada y respaldada ✓');
         } else {
           toast('Cuenta creada. Revisa tu correo o inicia sesión.');
@@ -2253,7 +2323,7 @@
         await migrateLocalToSupabase();
         await flushQueue();
         await pullRemote(false);
-        $('sync-modal').classList.add('hidden');
+        closeSyncModal();
         toast('Sesión iniciada ✓');
       };
 

@@ -701,28 +701,28 @@
 
       </main>
     </div>
+
+    <!-- MOBILE BOTTOM BAR -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] grid grid-cols-3 gap-1" aria-label="Navegación móvil">
+      <button type="button" data-view="balance" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Resumen</span>
+      </button>
+      <button type="button" data-view="historial" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>Movimientos</span>
+      </button>
+      <button type="button" data-view="ahorros" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/></svg>
+        <span>Cuentas</span>
+      </button>
+    </nav>
   </div>
 
   <!-- BOTÓN FLOTANTE VOLVER ARRIBA EN MOVIMIENTOS -->
   <button id="scroll-top-btn" type="button" aria-label="Volver arriba" title="Volver arriba" class="tap-scale fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:right-7 lg:bottom-7 z-30 w-11 h-11 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-xl grid place-items-center cursor-pointer transition-all duration-200 opacity-0 translate-y-4 pointer-events-none">
     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
   </button>
-
-  <!-- MOBILE BOTTOM BAR -->
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] grid grid-cols-3 gap-1" aria-label="Navegación móvil">
-    <button type="button" data-view="balance" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-      <span>Resumen</span>
-    </button>
-    <button type="button" data-view="historial" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <span>Movimientos</span>
-    </button>
-    <button type="button" data-view="ahorros" class="mob-tab tap-scale min-h-[50px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-xs cursor-pointer">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/></svg>
-      <span>Cuentas</span>
-    </button>
-  </nav>
 
   <!-- MODAL: TRANSACCIÓN -->
   <div id="tx-modal" class="modal-backdrop hidden">
@@ -866,7 +866,7 @@
   </div>
 
   <script>
-    (function () {
+    function initMisFinanzas() {
       // =========================================================================
       // 1. CONFIGURACIÓN Y CONSTANTES
       // =========================================================================
@@ -1147,12 +1147,6 @@
       let syncState = 'idle';
       let flushing = false;
       const saveQueue = () => writeJSON(Q_KEY, syncQueue);
-
-      function checkSbReady() {
-        if (!hasValidConfig) { toast('Configura SUPABASE_URL y SUPABASE_KEY en index.html'); return false; }
-        if (!sbClient) { toast('No se pudo cargar la librería de Supabase. Revisa tu conexión o DNS.'); return false; }
-        return true;
-      }
 
       let localGuestMode = false;
 
@@ -2434,8 +2428,7 @@
             ...c.S.map((r) => [r.date, 'ahorro_' + r.type, 'Ahorro', r.cat, '', r.note || '', r.type === 'retiro' ? -r.amt : r.amt]),
             ...c.G.map((r) => [r.date, 'meta_' + r.type, r.cat, '', '', r.note || '', r.type === 'retiro' ? -r.amt : r.amt])
           ];
-          const csv = '﻿' + lines.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('
-');
+          const csv = '\uFEFF' + lines.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
           const a = document.createElement('a');
           a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
           a.download = `corte-${cutMonth}.csv`;
@@ -2947,7 +2940,13 @@
       runAutoSubscriptions();
       switchView('balance');
       bootSupabaseSession();
-    })();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMisFinanzas);
+    } else {
+      initMisFinanzas();
+    }
   </script>
 </body>
 </html>
